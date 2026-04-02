@@ -4,7 +4,7 @@ This is a small project I built to study how different card shuffling methods ac
 
 I wanted to explore a simple but interesting question:
 
-> When can we say a deck of cards is “random enough”?
+> When can we say a deck of cards is “random enough” under shuffling?
 
 Instead of just shuffling cards and assuming it works, this project simulates different shuffle methods, measures how randomness evolves, and visualizes the results in an interactive way.
 
