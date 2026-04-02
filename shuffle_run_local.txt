@@ -1,0 +1,322 @@
+=== pile(k=4, random_pickup=True) ===
+-- trials=200 --
+trials= 200 | step=  1 | KS=0.256 | inv_mean=506.4 | runs_mean=4.00
+trials= 200 | step=  2 | KS=0.073 | inv_mean=639.0 | runs_mean=16.00
+trials= 200 | step=  3 | KS=0.050 | inv_mean=646.9 | runs_mean=14.08
+trials= 200 | step=  5 | KS=0.045 | inv_mean=670.2 | runs_mean=25.00
+trials= 200 | step= 10 | KS=0.100 | inv_mean=657.4 | runs_mean=26.44
+trials= 200 | step= 20 | KS=0.046 | inv_mean=670.3 | runs_mean=26.45
+trials= 200 | step= 30 | KS=0.046 | inv_mean=665.7 | runs_mean=26.62
+trials= 200 | step= 50 | KS=0.043 | inv_mean=665.0 | runs_mean=26.43
+trials= 200 | step= 80 | KS=0.064 | inv_mean=665.8 | runs_mean=26.40
+trials= 200 | step=120 | KS=0.052 | inv_mean=655.1 | runs_mean=26.59
+trials= 200 | step=160 | KS=0.044 | inv_mean=663.1 | runs_mean=26.66
+trials= 200 | step=196 | KS=0.036 | inv_mean=664.5 | runs_mean=26.56
+-- trials=800 --
+trials= 800 | step=  1 | KS=0.256 | inv_mean=507.0 | runs_mean=4.00
+trials= 800 | step=  2 | KS=0.064 | inv_mean=639.1 | runs_mean=16.00
+trials= 800 | step=  3 | KS=0.043 | inv_mean=644.7 | runs_mean=13.99
+trials= 800 | step=  5 | KS=0.025 | inv_mean=659.6 | runs_mean=24.61
+trials= 800 | step= 10 | KS=0.036 | inv_mean=658.4 | runs_mean=26.54
+trials= 800 | step= 20 | KS=0.027 | inv_mean=664.8 | runs_mean=26.50
+trials= 800 | step= 30 | KS=0.033 | inv_mean=667.0 | runs_mean=26.41
+trials= 800 | step= 50 | KS=0.026 | inv_mean=663.6 | runs_mean=26.50
+trials= 800 | step= 80 | KS=0.024 | inv_mean=664.6 | runs_mean=26.36
+trials= 800 | step=120 | KS=0.022 | inv_mean=663.1 | runs_mean=26.51
+trials= 800 | step=160 | KS=0.025 | inv_mean=660.8 | runs_mean=26.45
+trials= 800 | step=196 | KS=0.031 | inv_mean=666.4 | runs_mean=26.50
+-- trials=2000 --
+trials=2000 | step=  1 | KS=0.237 | inv_mean=507.3 | runs_mean=4.00
+trials=2000 | step=  2 | KS=0.058 | inv_mean=639.1 | runs_mean=16.00
+trials=2000 | step=  3 | KS=0.021 | inv_mean=647.0 | runs_mean=13.97
+trials=2000 | step=  5 | KS=0.021 | inv_mean=661.2 | runs_mean=24.70
+trials=2000 | step= 10 | KS=0.027 | inv_mean=661.0 | runs_mean=26.54
+trials=2000 | step= 20 | KS=0.012 | inv_mean=664.7 | runs_mean=26.52
+trials=2000 | step= 30 | KS=0.028 | inv_mean=665.8 | runs_mean=26.47
+trials=2000 | step= 50 | KS=0.016 | inv_mean=663.9 | runs_mean=26.43
+trials=2000 | step= 80 | KS=0.011 | inv_mean=664.8 | runs_mean=26.50
+trials=2000 | step=120 | KS=0.018 | inv_mean=661.8 | runs_mean=26.49
+trials=2000 | step=160 | KS=0.026 | inv_mean=662.3 | runs_mean=26.54
+trials=2000 | step=196 | KS=0.017 | inv_mean=663.5 | runs_mean=26.46
+
+=== pile(k=7, random_pickup=True) ===
+-- trials=200 --
+trials= 200 | step=  1 | KS=0.135 | inv_mean=577.4 | runs_mean=7.00
+trials= 200 | step=  2 | KS=0.064 | inv_mean=709.1 | runs_mean=40.22
+trials= 200 | step=  3 | KS=0.056 | inv_mean=662.2 | runs_mean=28.05
+trials= 200 | step=  5 | KS=0.050 | inv_mean=670.3 | runs_mean=26.05
+trials= 200 | step= 10 | KS=0.080 | inv_mean=667.2 | runs_mean=26.72
+trials= 200 | step= 20 | KS=0.052 | inv_mean=667.6 | runs_mean=26.27
+trials= 200 | step= 30 | KS=0.052 | inv_mean=663.6 | runs_mean=26.55
+trials= 200 | step= 50 | KS=0.066 | inv_mean=663.6 | runs_mean=26.80
+trials= 200 | step= 80 | KS=0.039 | inv_mean=663.6 | runs_mean=26.36
+trials= 200 | step=120 | KS=0.053 | inv_mean=664.9 | runs_mean=26.48
+trials= 200 | step=160 | KS=0.028 | inv_mean=669.8 | runs_mean=26.70
+trials= 200 | step=196 | KS=0.101 | inv_mean=662.7 | runs_mean=26.58
+-- trials=800 --
+trials= 800 | step=  1 | KS=0.138 | inv_mean=578.5 | runs_mean=7.00
+trials= 800 | step=  2 | KS=0.023 | inv_mean=709.6 | runs_mean=40.19
+trials= 800 | step=  3 | KS=0.030 | inv_mean=666.6 | runs_mean=27.98
+trials= 800 | step=  5 | KS=0.020 | inv_mean=666.9 | runs_mean=25.87
+trials= 800 | step= 10 | KS=0.037 | inv_mean=662.8 | runs_mean=26.52
+trials= 800 | step= 20 | KS=0.013 | inv_mean=664.3 | runs_mean=26.52
+trials= 800 | step= 30 | KS=0.041 | inv_mean=660.4 | runs_mean=26.51
+trials= 800 | step= 50 | KS=0.023 | inv_mean=662.0 | runs_mean=26.66
+trials= 800 | step= 80 | KS=0.016 | inv_mean=660.4 | runs_mean=26.52
+trials= 800 | step=120 | KS=0.023 | inv_mean=666.2 | runs_mean=26.55
+trials= 800 | step=160 | KS=0.026 | inv_mean=665.8 | runs_mean=26.51
+trials= 800 | step=196 | KS=0.028 | inv_mean=658.5 | runs_mean=26.54
+-- trials=2000 --
+trials=2000 | step=  1 | KS=0.135 | inv_mean=579.0 | runs_mean=7.00
+trials=2000 | step=  2 | KS=0.024 | inv_mean=706.7 | runs_mean=40.32
+trials=2000 | step=  3 | KS=0.012 | inv_mean=665.7 | runs_mean=27.77
+trials=2000 | step=  5 | KS=0.030 | inv_mean=662.8 | runs_mean=25.89
+trials=2000 | step= 10 | KS=0.028 | inv_mean=661.5 | runs_mean=26.46
+trials=2000 | step= 20 | KS=0.016 | inv_mean=662.9 | runs_mean=26.43
+trials=2000 | step= 30 | KS=0.016 | inv_mean=662.2 | runs_mean=26.57
+trials=2000 | step= 50 | KS=0.014 | inv_mean=662.9 | runs_mean=26.58
+trials=2000 | step= 80 | KS=0.027 | inv_mean=663.1 | runs_mean=26.52
+trials=2000 | step=120 | KS=0.022 | inv_mean=666.0 | runs_mean=26.53
+trials=2000 | step=160 | KS=0.018 | inv_mean=664.6 | runs_mean=26.49
+trials=2000 | step=196 | KS=0.023 | inv_mean=661.4 | runs_mean=26.46
+
+=== pile(k=10, random_pickup=True) ===
+-- trials=200 --
+trials= 200 | step=  1 | KS=0.096 | inv_mean=607.1 | runs_mean=10.00
+trials= 200 | step=  2 | KS=0.068 | inv_mean=686.6 | runs_mean=34.64
+trials= 200 | step=  3 | KS=0.034 | inv_mean=667.9 | runs_mean=26.68
+trials= 200 | step=  5 | KS=0.038 | inv_mean=664.6 | runs_mean=26.38
+trials= 200 | step= 10 | KS=0.039 | inv_mean=665.2 | runs_mean=26.45
+trials= 200 | step= 20 | KS=0.096 | inv_mean=661.3 | runs_mean=26.55
+trials= 200 | step= 30 | KS=0.035 | inv_mean=666.4 | runs_mean=26.73
+trials= 200 | step= 50 | KS=0.100 | inv_mean=656.2 | runs_mean=26.64
+trials= 200 | step= 80 | KS=0.087 | inv_mean=670.3 | runs_mean=26.43
+trials= 200 | step=120 | KS=0.034 | inv_mean=658.6 | runs_mean=26.59
+trials= 200 | step=160 | KS=0.037 | inv_mean=656.8 | runs_mean=26.43
+trials= 200 | step=196 | KS=0.073 | inv_mean=668.4 | runs_mean=26.62
+-- trials=800 --
+trials= 800 | step=  1 | KS=0.097 | inv_mean=607.5 | runs_mean=10.00
+trials= 800 | step=  2 | KS=0.029 | inv_mean=685.9 | runs_mean=34.85
+trials= 800 | step=  3 | KS=0.015 | inv_mean=665.9 | runs_mean=26.92
+trials= 800 | step=  5 | KS=0.036 | inv_mean=665.5 | runs_mean=26.38
+trials= 800 | step= 10 | KS=0.031 | inv_mean=664.5 | runs_mean=26.50
+trials= 800 | step= 20 | KS=0.038 | inv_mean=658.8 | runs_mean=26.62
+trials= 800 | step= 30 | KS=0.023 | inv_mean=664.5 | runs_mean=26.56
+trials= 800 | step= 50 | KS=0.044 | inv_mean=660.2 | runs_mean=26.51
+trials= 800 | step= 80 | KS=0.020 | inv_mean=663.1 | runs_mean=26.41
+trials= 800 | step=120 | KS=0.034 | inv_mean=660.6 | runs_mean=26.60
+trials= 800 | step=160 | KS=0.021 | inv_mean=659.5 | runs_mean=26.47
+trials= 800 | step=196 | KS=0.040 | inv_mean=665.8 | runs_mean=26.50
+-- trials=2000 --
+trials=2000 | step=  1 | KS=0.096 | inv_mean=607.8 | runs_mean=10.00
+trials=2000 | step=  2 | KS=0.024 | inv_mean=681.2 | runs_mean=34.89
+trials=2000 | step=  3 | KS=0.025 | inv_mean=663.1 | runs_mean=26.91
+trials=2000 | step=  5 | KS=0.021 | inv_mean=663.9 | runs_mean=26.41
+trials=2000 | step= 10 | KS=0.015 | inv_mean=663.7 | runs_mean=26.51
+trials=2000 | step= 20 | KS=0.024 | inv_mean=661.5 | runs_mean=26.52
+trials=2000 | step= 30 | KS=0.018 | inv_mean=663.5 | runs_mean=26.56
+trials=2000 | step= 50 | KS=0.015 | inv_mean=663.6 | runs_mean=26.50
+trials=2000 | step= 80 | KS=0.015 | inv_mean=663.1 | runs_mean=26.41
+trials=2000 | step=120 | KS=0.018 | inv_mean=660.7 | runs_mean=26.49
+trials=2000 | step=160 | KS=0.012 | inv_mean=663.2 | runs_mean=26.50
+trials=2000 | step=196 | KS=0.020 | inv_mean=663.1 | runs_mean=26.52
+
+=== pile(k=13, random_pickup=True) ===
+-- trials=200 --
+trials= 200 | step=  1 | KS=0.070 | inv_mean=622.7 | runs_mean=13.00
+trials= 200 | step=  2 | KS=0.038 | inv_mean=652.9 | runs_mean=16.86
+trials= 200 | step=  3 | KS=0.048 | inv_mean=666.1 | runs_mean=27.29
+trials= 200 | step=  5 | KS=0.063 | inv_mean=665.3 | runs_mean=26.61
+trials= 200 | step= 10 | KS=0.049 | inv_mean=662.6 | runs_mean=26.52
+trials= 200 | step= 20 | KS=0.040 | inv_mean=663.9 | runs_mean=26.33
+trials= 200 | step= 30 | KS=0.060 | inv_mean=653.2 | runs_mean=26.58
+trials= 200 | step= 50 | KS=0.046 | inv_mean=661.5 | runs_mean=26.32
+trials= 200 | step= 80 | KS=0.048 | inv_mean=671.7 | runs_mean=26.44
+trials= 200 | step=120 | KS=0.081 | inv_mean=658.9 | runs_mean=26.27
+trials= 200 | step=160 | KS=0.053 | inv_mean=670.1 | runs_mean=26.27
+trials= 200 | step=196 | KS=0.042 | inv_mean=669.9 | runs_mean=26.70
+-- trials=800 --
+trials= 800 | step=  1 | KS=0.073 | inv_mean=624.4 | runs_mean=13.00
+trials= 800 | step=  2 | KS=0.039 | inv_mean=652.7 | runs_mean=16.95
+trials= 800 | step=  3 | KS=0.032 | inv_mean=664.3 | runs_mean=27.18
+trials= 800 | step=  5 | KS=0.029 | inv_mean=664.2 | runs_mean=26.45
+trials= 800 | step= 10 | KS=0.015 | inv_mean=662.4 | runs_mean=26.52
+trials= 800 | step= 20 | KS=0.033 | inv_mean=662.9 | runs_mean=26.48
+trials= 800 | step= 30 | KS=0.031 | inv_mean=657.9 | runs_mean=26.49
+trials= 800 | step= 50 | KS=0.039 | inv_mean=660.7 | runs_mean=26.38
+trials= 800 | step= 80 | KS=0.031 | inv_mean=663.7 | runs_mean=26.45
+trials= 800 | step=120 | KS=0.040 | inv_mean=663.4 | runs_mean=26.48
+trials= 800 | step=160 | KS=0.025 | inv_mean=662.6 | runs_mean=26.38
+trials= 800 | step=196 | KS=0.015 | inv_mean=667.7 | runs_mean=26.55
+-- trials=2000 --
+trials=2000 | step=  1 | KS=0.060 | inv_mean=624.4 | runs_mean=13.00
+trials=2000 | step=  2 | KS=0.024 | inv_mean=653.6 | runs_mean=16.93
+trials=2000 | step=  3 | KS=0.016 | inv_mean=661.7 | runs_mean=27.24
+trials=2000 | step=  5 | KS=0.031 | inv_mean=663.5 | runs_mean=26.47
+trials=2000 | step= 10 | KS=0.017 | inv_mean=661.1 | runs_mean=26.52
+trials=2000 | step= 20 | KS=0.017 | inv_mean=663.7 | runs_mean=26.43
+trials=2000 | step= 30 | KS=0.011 | inv_mean=660.9 | runs_mean=26.46
+trials=2000 | step= 50 | KS=0.024 | inv_mean=663.0 | runs_mean=26.45
+trials=2000 | step= 80 | KS=0.015 | inv_mean=662.1 | runs_mean=26.47
+trials=2000 | step=120 | KS=0.021 | inv_mean=663.9 | runs_mean=26.44
+trials=2000 | step=160 | KS=0.021 | inv_mean=664.2 | runs_mean=26.48
+trials=2000 | step=196 | KS=0.020 | inv_mean=666.7 | runs_mean=26.50
+
+=== pile(k=26, random_pickup=True) ===
+-- trials=200 --
+trials= 200 | step=  1 | KS=0.066 | inv_mean=650.6 | runs_mean=26.00
+trials= 200 | step=  2 | KS=0.045 | inv_mean=666.5 | runs_mean=26.41
+trials= 200 | step=  3 | KS=0.071 | inv_mean=674.2 | runs_mean=26.59
+trials= 200 | step=  5 | KS=0.057 | inv_mean=663.4 | runs_mean=26.45
+trials= 200 | step= 10 | KS=0.059 | inv_mean=666.9 | runs_mean=26.58
+trials= 200 | step= 20 | KS=0.070 | inv_mean=662.2 | runs_mean=26.57
+trials= 200 | step= 30 | KS=0.052 | inv_mean=663.4 | runs_mean=26.50
+trials= 200 | step= 50 | KS=0.106 | inv_mean=667.7 | runs_mean=26.36
+trials= 200 | step= 80 | KS=0.033 | inv_mean=662.7 | runs_mean=26.62
+trials= 200 | step=120 | KS=0.070 | inv_mean=652.9 | runs_mean=26.61
+trials= 200 | step=160 | KS=0.086 | inv_mean=662.0 | runs_mean=26.72
+trials= 200 | step=196 | KS=0.035 | inv_mean=667.2 | runs_mean=26.44
+-- trials=800 --
+trials= 800 | step=  1 | KS=0.048 | inv_mean=650.0 | runs_mean=26.00
+trials= 800 | step=  2 | KS=0.035 | inv_mean=663.2 | runs_mean=26.55
+trials= 800 | step=  3 | KS=0.036 | inv_mean=667.8 | runs_mean=26.60
+trials= 800 | step=  5 | KS=0.023 | inv_mean=666.4 | runs_mean=26.45
+trials= 800 | step= 10 | KS=0.014 | inv_mean=660.4 | runs_mean=26.63
+trials= 800 | step= 20 | KS=0.021 | inv_mean=662.1 | runs_mean=26.63
+trials= 800 | step= 30 | KS=0.037 | inv_mean=665.4 | runs_mean=26.47
+trials= 800 | step= 50 | KS=0.034 | inv_mean=665.1 | runs_mean=26.37
+trials= 800 | step= 80 | KS=0.027 | inv_mean=664.5 | runs_mean=26.55
+trials= 800 | step=120 | KS=0.029 | inv_mean=654.3 | runs_mean=26.50
+trials= 800 | step=160 | KS=0.029 | inv_mean=666.9 | runs_mean=26.63
+trials= 800 | step=196 | KS=0.016 | inv_mean=661.9 | runs_mean=26.46
+-- trials=2000 --
+trials=2000 | step=  1 | KS=0.025 | inv_mean=649.0 | runs_mean=26.00
+trials=2000 | step=  2 | KS=0.022 | inv_mean=664.1 | runs_mean=26.52
+trials=2000 | step=  3 | KS=0.011 | inv_mean=666.7 | runs_mean=26.53
+trials=2000 | step=  5 | KS=0.017 | inv_mean=665.5 | runs_mean=26.45
+trials=2000 | step= 10 | KS=0.011 | inv_mean=662.8 | runs_mean=26.53
+trials=2000 | step= 20 | KS=0.015 | inv_mean=663.1 | runs_mean=26.56
+trials=2000 | step= 30 | KS=0.025 | inv_mean=665.5 | runs_mean=26.51
+trials=2000 | step= 50 | KS=0.022 | inv_mean=663.9 | runs_mean=26.40
+trials=2000 | step= 80 | KS=0.022 | inv_mean=662.6 | runs_mean=26.49
+trials=2000 | step=120 | KS=0.022 | inv_mean=659.2 | runs_mean=26.48
+trials=2000 | step=160 | KS=0.008 | inv_mean=663.9 | runs_mean=26.50
+trials=2000 | step=196 | KS=0.017 | inv_mean=664.0 | runs_mean=26.47
+
+=== pile(k=52, random_pickup=True) ===
+-- trials=200 --
+trials= 200 | step=  1 | KS=0.076 | inv_mean=667.5 | runs_mean=26.62
+trials= 200 | step=  2 | KS=0.038 | inv_mean=657.3 | runs_mean=26.48
+trials= 200 | step=  3 | KS=0.049 | inv_mean=654.8 | runs_mean=26.50
+trials= 200 | step=  5 | KS=0.043 | inv_mean=659.6 | runs_mean=26.69
+trials= 200 | step= 10 | KS=0.061 | inv_mean=663.1 | runs_mean=26.32
+trials= 200 | step= 20 | KS=0.036 | inv_mean=660.2 | runs_mean=26.38
+trials= 200 | step= 30 | KS=0.050 | inv_mean=663.5 | runs_mean=26.45
+trials= 200 | step= 50 | KS=0.037 | inv_mean=659.4 | runs_mean=26.50
+trials= 200 | step= 80 | KS=0.048 | inv_mean=660.7 | runs_mean=26.27
+trials= 200 | step=120 | KS=0.048 | inv_mean=663.2 | runs_mean=26.36
+trials= 200 | step=160 | KS=0.098 | inv_mean=661.3 | runs_mean=26.41
+trials= 200 | step=196 | KS=0.061 | inv_mean=667.3 | runs_mean=26.55
+-- trials=800 --
+trials= 800 | step=  1 | KS=0.018 | inv_mean=663.3 | runs_mean=26.52
+trials= 800 | step=  2 | KS=0.019 | inv_mean=659.7 | runs_mean=26.41
+trials= 800 | step=  3 | KS=0.028 | inv_mean=658.9 | runs_mean=26.41
+trials= 800 | step=  5 | KS=0.032 | inv_mean=664.9 | runs_mean=26.50
+trials= 800 | step= 10 | KS=0.021 | inv_mean=660.3 | runs_mean=26.49
+trials= 800 | step= 20 | KS=0.026 | inv_mean=660.1 | runs_mean=26.43
+trials= 800 | step= 30 | KS=0.046 | inv_mean=664.0 | runs_mean=26.51
+trials= 800 | step= 50 | KS=0.020 | inv_mean=657.6 | runs_mean=26.53
+trials= 800 | step= 80 | KS=0.020 | inv_mean=665.4 | runs_mean=26.57
+trials= 800 | step=120 | KS=0.023 | inv_mean=662.6 | runs_mean=26.36
+trials= 800 | step=160 | KS=0.032 | inv_mean=663.6 | runs_mean=26.45
+trials= 800 | step=196 | KS=0.028 | inv_mean=664.3 | runs_mean=26.61
+-- trials=2000 --
+trials=2000 | step=  1 | KS=0.014 | inv_mean=662.2 | runs_mean=26.51
+trials=2000 | step=  2 | KS=0.011 | inv_mean=661.2 | runs_mean=26.48
+trials=2000 | step=  3 | KS=0.013 | inv_mean=663.5 | runs_mean=26.43
+trials=2000 | step=  5 | KS=0.020 | inv_mean=665.1 | runs_mean=26.54
+trials=2000 | step= 10 | KS=0.017 | inv_mean=663.0 | runs_mean=26.53
+trials=2000 | step= 20 | KS=0.024 | inv_mean=660.4 | runs_mean=26.48
+trials=2000 | step= 30 | KS=0.031 | inv_mean=663.2 | runs_mean=26.56
+trials=2000 | step= 50 | KS=0.028 | inv_mean=660.0 | runs_mean=26.55
+trials=2000 | step= 80 | KS=0.015 | inv_mean=662.9 | runs_mean=26.50
+trials=2000 | step=120 | KS=0.024 | inv_mean=662.9 | runs_mean=26.47
+trials=2000 | step=160 | KS=0.017 | inv_mean=662.6 | runs_mean=26.48
+trials=2000 | step=196 | KS=0.015 | inv_mean=664.2 | runs_mean=26.54
+
+=== riffle(cut_p=0.50) ===
+steps= 1 | KS=0.878 | Hpos=1.956 (34.3%) | inv_mean=328.1
+steps= 2 | KS=0.762 | Hpos=3.177 (55.7%) | inv_mean=494.4
+steps= 3 | KS=0.589 | Hpos=4.246 (74.5%) | inv_mean=579.5
+steps= 4 | KS=0.369 | Hpos=5.120 (89.8%) | inv_mean=619.1
+steps= 5 | KS=0.219 | Hpos=5.497 (96.4%) | inv_mean=638.3
+steps= 6 | KS=0.123 | Hpos=5.616 (98.5%) | inv_mean=648.1
+steps= 7 | KS=0.082 | Hpos=5.640 (98.9%) | inv_mean=657.6
+steps= 8 | KS=0.061 | Hpos=5.651 (99.1%) | inv_mean=662.6
+steps= 9 | KS=0.021 | Hpos=5.664 (99.4%) | inv_mean=661.8
+steps=10 | KS=0.018 | Hpos=5.643 (99.0%) | inv_mean=661.1
+steps=11 | KS=0.029 | Hpos=5.667 (99.4%) | inv_mean=663.6
+steps=12 | KS=0.045 | Hpos=5.662 (99.3%) | inv_mean=667.0
+
+=== riffle(cut_p=0.60) ===
+steps= 1 | KS=0.902 | Hpos=1.580 (27.7%) | inv_mean=316.4
+steps= 2 | KS=0.828 | Hpos=2.564 (45.0%) | inv_mean=483.2
+steps= 3 | KS=0.740 | Hpos=3.386 (59.4%) | inv_mean=569.3
+steps= 4 | KS=0.608 | Hpos=4.180 (73.3%) | inv_mean=616.2
+steps= 5 | KS=0.439 | Hpos=4.887 (85.7%) | inv_mean=639.0
+steps= 6 | KS=0.272 | Hpos=5.365 (94.1%) | inv_mean=649.3
+steps= 7 | KS=0.184 | Hpos=5.548 (97.3%) | inv_mean=656.3
+steps= 8 | KS=0.110 | Hpos=5.625 (98.7%) | inv_mean=660.7
+steps= 9 | KS=0.046 | Hpos=5.662 (99.3%) | inv_mean=663.8
+steps=10 | KS=0.022 | Hpos=5.674 (99.5%) | inv_mean=662.2
+steps=11 | KS=0.027 | Hpos=5.662 (99.3%) | inv_mean=663.0
+steps=12 | KS=0.018 | Hpos=5.665 (99.4%) | inv_mean=664.0
+
+=== riffle(cut_p=0.70) ===
+steps= 1 | KS=0.919 | Hpos=1.234 (21.6%) | inv_mean=276.4
+steps= 2 | KS=0.865 | Hpos=2.041 (35.8%) | inv_mean=443.4
+steps= 3 | KS=0.816 | Hpos=2.686 (47.1%) | inv_mean=533.6
+steps= 4 | KS=0.746 | Hpos=3.285 (57.6%) | inv_mean=588.0
+steps= 5 | KS=0.664 | Hpos=3.849 (67.5%) | inv_mean=618.1
+steps= 6 | KS=0.564 | Hpos=4.396 (77.1%) | inv_mean=635.3
+steps= 7 | KS=0.446 | Hpos=4.884 (85.7%) | inv_mean=645.4
+steps= 8 | KS=0.339 | Hpos=5.214 (91.5%) | inv_mean=651.5
+steps= 9 | KS=0.228 | Hpos=5.472 (96.0%) | inv_mean=656.0
+steps=10 | KS=0.149 | Hpos=5.577 (97.8%) | inv_mean=660.1
+steps=11 | KS=0.103 | Hpos=5.633 (98.8%) | inv_mean=667.2
+steps=12 | KS=0.063 | Hpos=5.661 (99.3%) | inv_mean=665.4
+
+=== riffle(cut_p=0.80) ===
+steps= 1 | KS=0.935 | Hpos=0.871 (15.3%) | inv_mean=212.0
+steps= 2 | KS=0.904 | Hpos=1.451 (25.4%) | inv_mean=360.4
+steps= 3 | KS=0.880 | Hpos=1.885 (33.1%) | inv_mean=454.6
+steps= 4 | KS=0.844 | Hpos=2.370 (41.6%) | inv_mean=520.3
+steps= 5 | KS=0.808 | Hpos=2.780 (48.8%) | inv_mean=567.2
+steps= 6 | KS=0.762 | Hpos=3.152 (55.3%) | inv_mean=597.6
+steps= 7 | KS=0.720 | Hpos=3.518 (61.7%) | inv_mean=616.5
+steps= 8 | KS=0.665 | Hpos=3.876 (68.0%) | inv_mean=631.0
+steps= 9 | KS=0.600 | Hpos=4.234 (74.3%) | inv_mean=641.4
+steps=10 | KS=0.541 | Hpos=4.532 (79.5%) | inv_mean=645.5
+steps=11 | KS=0.465 | Hpos=4.826 (84.7%) | inv_mean=649.8
+steps=12 | KS=0.387 | Hpos=5.085 (89.2%) | inv_mean=655.9
+
+=== overhand(p=0.50) (long schedule) ===
+steps=   10 | KS=0.722 | Hpos=3.612 | inv_mean=158.0 | runs_mean=24.49
+steps=   20 | KS=0.629 | Hpos=4.156 | inv_mean=223.5 | runs_mean=25.15
+steps=   50 | KS=0.441 | Hpos=4.876 | inv_mean=337.2 | runs_mean=25.83
+steps=  100 | KS=0.321 | Hpos=5.316 | inv_mean=443.8 | runs_mean=26.04
+steps=  200 | KS=0.164 | Hpos=5.586 | inv_mean=560.0 | runs_mean=26.32
+steps=  500 | KS=0.028 | Hpos=5.662 | inv_mean=648.1 | runs_mean=26.45
+steps= 1000 | KS=0.023 | Hpos=5.676 | inv_mean=661.4 | runs_mean=26.40
+steps= 2000 | KS=0.026 | Hpos=5.661 | inv_mean=665.2 | runs_mean=26.49
+steps= 5000 | KS=0.037 | Hpos=5.658 | inv_mean=663.7 | runs_mean=26.58
+steps= 8000 | KS=0.020 | Hpos=5.677 | inv_mean=662.9 | runs_mean=26.52
+steps=10000 | KS=0.031 | Hpos=5.672 | inv_mean=660.7 | runs_mean=26.46
+steps=15000 | KS=0.016 | Hpos=5.677 | inv_mean=666.4 | runs_mean=26.52
+steps=20000 | KS=0.023 | Hpos=5.681 | inv_mean=661.1 | runs_mean=26.47
+steps=30000 | KS=0.016 | Hpos=5.676 | inv_mean=662.4 | runs_mean=26.41
+
+=== Timing (seconds per shuffle application) ===
+riffle(cut_p=0.50)                       : 9.620e-06 sec/shuffle
+overhand(p=0.50)                         : 7.334e-06 sec/shuffle
+pile(k=7, random_pickup=True)            : 3.694e-06 sec/shuffle
