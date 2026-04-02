@@ -145,7 +145,7 @@ Some techniques used:
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/shuffle-randomness-explorer.git
+git clone https://github.com/AmberR-pua/shuffle-randomness-explorer.git
 cd shuffle-randomness-explorer
 ```
 
