@@ -2,7 +2,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
+import json
 
+# put below line into terminal to run, which get let you get UI,
+# and can do the simulations in a more explicit way
+# streamlit run app.py
+
+# Pulls in the simulation engine functions.
 from shuffle_main import (
     all_card_extreme_probability_rows,
     benchmark_shuffle_step,
@@ -18,12 +24,14 @@ from shuffle_main import (
     schedule_riffle,
 )
 
+# Sets browser tab title, a wide layout and add the main title and subtitle.
 st.set_page_config(page_title="Shuffle Mixing Explorer", layout="wide")
 st.title("Card Shuffling Randomness Explorer")
 st.caption(
     "Compare shuffle models or parameter settings, watch metrics update, and inspect how a tracked card spreads across positions."
 )
 
+# provide info for metrics for user to check and help them decide which metric they want to look at
 METRIC_INFO = {
     "ks_pos": {
         "label": "KS distance of tracked-card position",
@@ -47,7 +55,8 @@ METRIC_INFO = {
         "label": "Increasing sequences (rising runs)",
         "benchmark_label": "Expected benchmark: (n+1)/2 for a random permutation",
         "direction": "Closer to the benchmark is better for random mixing.",
-        "plain": "A rising run is a consecutive increasing block. Perfect structure gives very few runs, while random decks give about half the deck size in runs on average.",
+        "plain": "A rising run is a consecutive increasing block. "
+                 "Perfect structure gives very few runs, while random decks give about half the deck size in runs on average.",
     },
     "pos_mean": {
         "label": "Mean tracked-card position",
@@ -65,22 +74,45 @@ BENCHMARK_COLUMN_MAP = {
     "pos_mean": "pos_mean_benchmark",
 }
 
+# default method appear cyclically
 DEFAULT_METHODS = ["riffle", "pile", "overhand", "riffle", "pile", "overhand", "riffle", "pile", "overhand", "riffle", "pile", "overhand"]
 PREFIXES = [chr(ord("A") + i) for i in range(12)]
 PAGES = ["Overview", "Tracked card", "Advanced diagnostics", "Perfect riffle", "Downloads"]
 
 
+# descrption of the overall project and metrics and other terminology
 with st.expander("What do we mean by randomness here?", expanded=True):
     st.markdown(
         """
-**Tracked card.** The tracked card is one card label from `0` to `n-1`. If the shuffle is mixing well, that card should become almost equally likely to appear in any position.
+**Randomness:** for each card of the deck, it should distribute uniformly to each position through the process of shuffling
+
+**Tracked card.** The tracked card is one card with label from `0` to `n-1`. If the shuffle is mixing well, 
+that card should become almost equally likely to appear in any position.
 
 **Metrics used in this site.**
-- **KS distance of tracked-card position:** smaller is better; `0` means a perfectly uniform tracked-card distribution.
-- **Position entropy fraction:** closer to `1` is better; `1` means the tracked card is spread as evenly as possible.
-- **Mean inversion count:** compares the deck to a random permutation. The benchmark is `n(n-1)/4`.
-- **Increasing sequences (rising runs):** counts increasing blocks in the deck. A random permutation has expected value `(n+1)/2`.
-- **Mean tracked-card position:** for a fair shuffle, the expected average position is `(n-1)/2`.
+- **KS distance of tracked-card position:**   
+Measures how far the tracked card’s position distribution is from perfectly uniform.  
+  It looks for the *largest imbalance* — for example, if the card appears too often in certain positions.   
+  smaller is better; `0` means a perfectly uniform tracked-card distribution.
+- **Position entropy fraction:**   
+Measures how evenly the tracked card is spread across all positions.  
+   Instead of focusing on worst cases, this looks at the *overall spread*.  
+closer to `1` is better; `1` means the tracked card is spread as evenly as possible.
+- **Mean inversion count:**   
+Measures how much the entire deck has been scrambled compared to the original order.  
+  It counts how many pairs of cards are “out of order.”  
+compares the deck to a random permutation. The benchmark is `n(n-1)/4`.
+- **Increasing sequences (rising runs):**   
+Counts how many ordered chunks remain in the deck(counts increasing blocks in the deck).   
+  If large blocks of cards stay in order, the shuffle is not mixing well.  
+  More runs means the original structure has been broken up more effectively.  
+A random permutation has expected value `(n+1)/2`.
+- **Mean tracked-card position:**   
+Tracks where the chosen card tends to end up on average.   
+for a fair shuffle, it should not favor the top or bottom, the expected average position is `(n-1)/2`.
+- **Notice about inversion count and Increasing sequences:**   
+Rising sequences and inversion count are different because they measure different scales of randomness:   
+inversion count captures global disorder across all card pairs, while rising sequences detect local structure by identifying ordered chunks. A shuffle can appear random in one metric but not the other.
 
 **Expected lines.** Each metric plot includes a benchmark line so you can compare the observed curve to the theoretical target.
 
@@ -91,23 +123,24 @@ with st.expander("What do we mean by randomness here?", expanded=True):
     )
 
 
+# Run simulation with caching to avoid recomputing expensive Monte Carlo trials when inputs have not changed.
 @st.cache_data(show_spinner=False)
 def run_cached_result(
-    method: str,
-    trials: int,
-    seed: int,
-    tracked_card: int,
-    deck_size: int,
-    steps_list: list,
-    riffle_cut_p: float,
-    p_overhand: float,
-    piles_k: int,
-    pile_random_pickup: bool,
-    cheat_mode: str,
-    cheat_cards: int,
-    max_workers: int,
-    perfect_riffle: bool,
-    perfect_riffle_start: str,
+        method: str,
+        trials: int,
+        seed: int,
+        tracked_card: int,
+        deck_size: int,
+        steps_list: list,
+        riffle_cut_p: float,
+        p_overhand: float,
+        piles_k: int,
+        pile_random_pickup: bool,
+        cheat_mode: str,
+        cheat_cards: int,
+        max_workers: int,
+        perfect_riffle: bool,
+        perfect_riffle_start: str,
 ):
     cfg = build_shuffle_config(
         method=method,
@@ -134,6 +167,10 @@ def run_cached_result(
 
 
 def make_metric_figure(df: pd.DataFrame, metric: str, title: str, compare_col: str = "label") -> go.Figure:
+    """
+    This draw line charts for one metric over steps, which can compare several configurations,
+    add error bars, and overlay the theoretical benchmark line.
+    """
     fig = go.Figure()
     if df.empty:
         return fig
@@ -147,6 +184,7 @@ def make_metric_figure(df: pd.DataFrame, metric: str, title: str, compare_col: s
             trace_kwargs["error_y"] = dict(type="data", array=1.96 * grp[error_col], visible=True)
         fig.add_trace(go.Scatter(**trace_kwargs))
 
+    # Add benchmark dashed line if available
     benchmark_col = BENCHMARK_COLUMN_MAP.get(metric)
     if benchmark_col and benchmark_col in df.columns:
         bench = df.sort_values("steps").drop_duplicates("steps")[["steps", benchmark_col]].dropna()
@@ -176,6 +214,12 @@ def make_single_label_metric_figure(df: pd.DataFrame, metric: str, title: str, l
 
 
 def make_hist_figure(pos_df: pd.DataFrame, chosen_step: int, title: str, deck_size: int) -> go.Figure:
+    """
+    This shows the full probability distribution of the tracked card at one selected step
+
+    If a deck is perfectly mixed in the tracked-card sense, each position should have probability about 1/n
+    """
+    # Select exactly one shuffle count.
     filt = pos_df[pos_df["steps"] == chosen_step].copy()
     fig = px.bar(filt, x="position", y="probability", color="label", barmode="group", title=title)
     fig.add_hline(y=1 / max(1, int(deck_size)), line_dash="dash", annotation_text="Uniform benchmark")
@@ -184,6 +228,10 @@ def make_hist_figure(pos_df: pd.DataFrame, chosen_step: int, title: str, deck_si
 
 
 def make_top_bottom_bar(named_results, chosen_step: int, deck_size: int) -> go.Figure:
+    """
+    For every card, show its highest-probability position and lowest-probability position at a chosen step.
+    If mixing were perfect, these highs and lows should not vary much from 1/n.
+    """
     rows = []
     for label, result in named_results.items():
         step_result = result.get(chosen_step)
@@ -227,6 +275,9 @@ def make_top_bottom_bar(named_results, chosen_step: int, deck_size: int) -> go.F
 
 
 def make_top_bottom_bar_for_config(label: str, result, deck_size: int):
+    """
+    Same diagnostic as above, but focused on one chosen configuration.
+    """
     if not result:
         return go.Figure(), None
 
@@ -271,6 +322,7 @@ def make_top_bottom_bar_for_config(label: str, result, deck_size: int):
 
 
 def make_3d_figure(pos_df: pd.DataFrame) -> go.Figure:
+    """Visualize how tracked-card probability mass spreads across positions over time."""
     fig = px.scatter_3d(
         pos_df,
         x="steps",
@@ -285,6 +337,7 @@ def make_3d_figure(pos_df: pd.DataFrame) -> go.Figure:
 
 
 def make_perfect_riffle_runs_figure(path_df: pd.DataFrame, label: str) -> go.Figure:
+    """Plot rising runs under repeated perfect riffles, which help reveal strong hidden order."""
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=path_df["steps"], y=path_df["runs"], mode="lines+markers", name=label))
     fig.add_trace(
@@ -306,6 +359,9 @@ def make_perfect_riffle_runs_figure(path_df: pd.DataFrame, label: str) -> go.Fig
 
 
 def combine_results_to_frames(named_results, deck_size: int):
+    """
+    This takes the nested simulation output and flattens it into two plotting tables:
+    one for summary metrics over time;another for tracked-card position probabilities."""
     metric_rows, pos_rows = [], []
     for label, result in named_results.items():
         frame = pd.DataFrame(results_to_frame(result))
@@ -322,11 +378,13 @@ def combine_results_to_frames(named_results, deck_size: int):
 
 
 def next_render_nonce() -> int:
+    """This nonce gives each redraw a slightly different key so the chart refreshes properly."""
     st.session_state["render_nonce"] = int(st.session_state.get("render_nonce", 0)) + 1
     return int(st.session_state["render_nonce"])
 
 
 def ui_params_from_prefix(prefix: str, method: str):
+    """eads the current sidebar widget values for one configuration prefix"""
     perfect_riffle = bool(st.session_state.get(f"{prefix}_perfect_riffle", False)) if method == "riffle" else False
     perfect_riffle_start = st.session_state.get(f"{prefix}_perfect_start", "left")
     if method == "riffle":
@@ -359,6 +417,7 @@ def ui_params_from_prefix(prefix: str, method: str):
 
 
 def cfg_download_label(configs_meta, fallback: str) -> str:
+    """Makes download filenames clearer."""
     if len(configs_meta) != 1:
         return fallback
     return configs_meta[0]["cfg"].name
@@ -372,7 +431,177 @@ def position_download_name(cfg_name: str, compare_count: int) -> str:
     return "shuffle_position_probabilities.csv" if compare_count > 1 else f"{cfg_name}_position_probabilities.csv"
 
 
+def _default_schedule_settings_for_method(method: str, perfect_riffle: bool = False):
+    """ Return schedule settings for a method."""
+    if method == "riffle":
+        return {"max_shuffles": 20 if perfect_riffle else 12}
+    if method == "overhand":
+        return {"long_sched": False}
+    return {"pile_max_steps": 200, "pile_stride": 10}
+
+
+def export_single_config_from_session(meta: dict, idx: int):
+    """Build and return an exportable JSON-like dictionary for one configuration."""
+    prefix = meta["prefix"]
+    default_method = DEFAULT_METHODS[idx % len(DEFAULT_METHODS)]
+    method = st.session_state.get(f"{prefix}_method", default_method)
+
+    perfect_riffle = bool(st.session_state.get(f"{prefix}_perfect_riffle", False)) if method == "riffle" else False
+
+    if method == "riffle":
+        schedule_settings = {
+            "max_shuffles": int(st.session_state.get(f"{prefix}_max_shuffles", 20 if perfect_riffle else 12))
+        }
+    elif method == "overhand":
+        schedule_settings = {
+            "long_sched": bool(st.session_state.get(f"{prefix}_long_sched", False))
+        }
+    else:
+        schedule_settings = {
+            "pile_max_steps": int(st.session_state.get(f"{prefix}_pile_max_steps", 200)),
+            "pile_stride": int(st.session_state.get(f"{prefix}_pile_stride", 10)),
+        }
+
+    shuffle_params = {
+        "riffle_cut_p": float(st.session_state.get(f"{prefix}_riffle_cut_p", 0.5)),
+        "p_overhand": float(st.session_state.get(f"{prefix}_overhand_p", 0.5)),
+        "piles_k": int(st.session_state.get(f"{prefix}_pile_k", 7)),
+        "pile_random_pickup": bool(st.session_state.get(f"{prefix}_random_pickup", True)),
+        "cheat_mode": st.session_state.get(f"{prefix}_cheat_mode", "none"),
+        "cheat_cards": int(st.session_state.get(f"{prefix}_cheat_cards", 2)),
+        "perfect_riffle": perfect_riffle,
+        "perfect_riffle_start": st.session_state.get(f"{prefix}_perfect_start", "left"),
+    }
+
+    return {
+        "prefix": prefix,
+        "display_name": st.session_state.get(f"{prefix}_display_name", meta.get("display_name", prefix)),
+        "method": method,
+        "schedule_settings": schedule_settings,
+        "steps_list": list(meta.get("steps_list", [])),
+        "shuffle_params": shuffle_params,
+    }
+
+
+# The two functions make the app reproducible.
+# One exports the current experiment setup to JSON, and the other loads such a JSON file back into the app
+def build_config_export_payload(sidebar_state):
+    configs_payload = [
+        export_single_config_from_session(meta, idx)
+        for idx, meta in enumerate(sidebar_state["configs"])
+    ]
+
+    payload = {
+        "app": "Card Shuffling Randomness Explorer",
+        "version": 1,
+        "common_settings": {
+            "deck_size": int(sidebar_state["deck_size"]),
+            "tracked_card": int(sidebar_state["tracked_card"]),
+            "trials": int(sidebar_state["trials"]),
+            "seed": int(sidebar_state["seed"]),
+            "batch_size": int(sidebar_state["batch_size"]),
+            "max_workers": int(sidebar_state["max_workers"]),
+            "refresh_every": int(sidebar_state["refresh_every"]),
+            "use_cached_final": bool(sidebar_state["use_cached_final"]),
+            "compare_enabled": bool(sidebar_state["compare_enabled"]),
+            "config_count": int(len(sidebar_state["configs"])),
+        },
+        "display_settings": {
+            "metric_choice": sidebar_state["metric_choice"],
+            "page_mode": sidebar_state["page_mode"],
+            "chart_layout_mode": sidebar_state["chart_layout_mode"],
+            "show_advanced_graphs": bool(sidebar_state["show_advanced_graphs"]),
+            "show_runtime_table": bool(sidebar_state["show_runtime_table"]),
+            "tracked_label_choice": sidebar_state.get("tracked_label_choice"),
+            "advanced_diag_label_choice": sidebar_state.get("advanced_diag_label_choice"),
+            "visible_labels": list(sidebar_state.get("visible_labels", [])),
+        },
+        "shuffle_configurations": configs_payload,
+    }
+
+    return json.dumps(payload, indent=2, ensure_ascii=False).encode("utf-8")
+
+
+def apply_loaded_configuration(payload: dict):
+    common = payload.get("common_settings", {}) or {}
+    display = payload.get("display_settings", {}) or {}
+    configs = payload.get("shuffle_configurations", []) or []
+
+    config_count = max(1, min(len(PREFIXES), int(common.get("config_count", len(configs) or 1))))
+    compare_enabled = bool(common.get("compare_enabled", config_count > 1))
+
+    st.session_state["deck_size"] = int(common.get("deck_size", st.session_state.get("deck_size", 52)))
+    st.session_state["tracked_card"] = int(common.get("tracked_card", st.session_state.get("tracked_card", 0)))
+    st.session_state["trials"] = int(common.get("trials", st.session_state.get("trials", 600)))
+    st.session_state["seed"] = int(common.get("seed", st.session_state.get("seed", 2026)))
+    st.session_state["batch_size"] = int(common.get("batch_size", st.session_state.get("batch_size", 100)))
+    st.session_state["max_workers"] = int(common.get("max_workers", st.session_state.get("max_workers", 2)))
+    st.session_state["refresh_every"] = int(common.get("refresh_every", st.session_state.get("refresh_every", 2)))
+    st.session_state["use_cached_final"] = bool(common.get("use_cached_final", st.session_state.get("use_cached_final", False)))
+    st.session_state["compare_enabled"] = compare_enabled
+    st.session_state["config_count"] = config_count
+
+    if "metric_choice" in display:
+        st.session_state["metric_choice"] = display["metric_choice"]
+    if "page_mode" in display:
+        st.session_state["page_mode"] = display["page_mode"]
+    if "chart_layout_mode" in display:
+        st.session_state["chart_layout_mode"] = display["chart_layout_mode"]
+    if "show_advanced_graphs" in display:
+        st.session_state["show_advanced_graphs"] = bool(display["show_advanced_graphs"])
+    if "show_runtime_table" in display:
+        st.session_state["show_runtime_table"] = bool(display["show_runtime_table"])
+    if "tracked_label_choice" in display:
+        st.session_state["tracked_label_choice"] = display["tracked_label_choice"]
+    if "advanced_diag_label_choice" in display:
+        st.session_state["advanced_diag_label_choice"] = display["advanced_diag_label_choice"]
+    if "visible_labels" in display:
+        st.session_state["visible_labels"] = list(display["visible_labels"])
+
+    for idx, cfg_data in enumerate(configs[: len(PREFIXES)]):
+        prefix = PREFIXES[idx]
+        method = cfg_data.get("method", DEFAULT_METHODS[idx % len(DEFAULT_METHODS)])
+        params = cfg_data.get("shuffle_params", {}) or {}
+        schedule = cfg_data.get("schedule_settings", {}) or {}
+
+        perfect_riffle = bool(params.get("perfect_riffle", False))
+        schedule_defaults = _default_schedule_settings_for_method(method, perfect_riffle=perfect_riffle)
+
+        st.session_state[f"{prefix}_display_name"] = cfg_data.get("display_name", prefix)
+        st.session_state[f"{prefix}_method"] = method
+
+        st.session_state[f"{prefix}_perfect_riffle"] = perfect_riffle
+        st.session_state[f"{prefix}_perfect_start"] = params.get("perfect_riffle_start", "left")
+        st.session_state[f"{prefix}_riffle_cut_p"] = float(params.get("riffle_cut_p", 0.5))
+
+        st.session_state[f"{prefix}_overhand_p"] = float(params.get("p_overhand", 0.5))
+
+        default_pile_k = min(7, int(st.session_state["deck_size"]))
+        st.session_state[f"{prefix}_pile_k"] = int(params.get("piles_k", default_pile_k))
+        st.session_state[f"{prefix}_random_pickup"] = bool(params.get("pile_random_pickup", True))
+
+        st.session_state[f"{prefix}_cheat_mode"] = params.get("cheat_mode", "none")
+        st.session_state[f"{prefix}_cheat_cards"] = int(params.get("cheat_cards", 2))
+
+        if method == "riffle":
+            st.session_state[f"{prefix}_max_shuffles"] = int(
+                schedule.get("max_shuffles", schedule_defaults["max_shuffles"])
+            )
+        elif method == "overhand":
+            st.session_state[f"{prefix}_long_sched"] = bool(
+                schedule.get("long_sched", schedule_defaults["long_sched"])
+            )
+        else:
+            st.session_state[f"{prefix}_pile_max_steps"] = int(
+                schedule.get("pile_max_steps", schedule_defaults["pile_max_steps"])
+            )
+            st.session_state[f"{prefix}_pile_stride"] = int(
+                schedule.get("pile_stride", schedule_defaults["pile_stride"])
+            )
+
+
 def ensure_unique_config_labels(configs_meta):
+    """This function prevents label collisions in plots and tables."""
     counts = {}
     for meta in configs_meta:
         name = str(meta.get("display_name", meta.get("prefix", "Config"))).strip() or str(meta.get("prefix", "Config"))
@@ -391,6 +620,7 @@ def ensure_unique_config_labels(configs_meta):
 
 
 def render_schedule_controls(container, prefix: str, method: str, perfect_riffle: bool = False):
+    """Creates the sidebar controls that determine which shuffle steps are simulated."""
     if method == "riffle":
         max_shuffles = container.slider(
             f"{prefix} max shuffles", 1, 60, 12 if not perfect_riffle else 20, 1, key=f"{prefix}_max_shuffles"
@@ -405,6 +635,7 @@ def render_schedule_controls(container, prefix: str, method: str, perfect_riffle
 
 
 def render_config_controls(container, prefix: str, default_method: str, deck_size: int, tracked_card: int):
+    """This is the sidebar builder for one experiment."""
     display_name = container.text_input(
         f"{prefix} display label",
         value=str(st.session_state.get(f"{prefix}_display_name", prefix)),
@@ -477,9 +708,36 @@ def render_config_controls(container, prefix: str, default_method: str, deck_siz
     )
     return cfg, steps_list, (display_name.strip() or prefix)
 
-
+# This function build sidebar the user can modify for experiment
 def build_sidebar():
     st.sidebar.header("Experiment Controls")
+
+    restore_message = st.session_state.pop("config_restore_message", None)
+    if restore_message:
+        st.sidebar.success(restore_message)
+
+    restore_box = st.sidebar.expander("Load saved configuration", expanded=False)
+    uploaded_config = restore_box.file_uploader(
+        "Upload configuration JSON",
+        type=["json"],
+        key="uploaded_shuffle_config_json",
+        help="Upload a configuration JSON previously exported from the Downloads page.",
+    )
+
+    if uploaded_config is not None:
+        restore_box.caption("Click the button below to apply the uploaded configuration to the sidebar controls.")
+        if restore_box.button(
+                "Apply uploaded configuration",
+                width="stretch",
+                key="apply_uploaded_shuffle_config",
+        ):
+            try:
+                payload = json.loads(uploaded_config.getvalue().decode("utf-8"))
+                apply_loaded_configuration(payload)
+                st.session_state["config_restore_message"] = "Configuration loaded from JSON."
+                st.rerun()
+            except Exception as exc:
+                restore_box.error(f"Could not load configuration JSON: {exc}")
 
     common_box = st.sidebar.expander("Common experiment settings", expanded=True)
     deck_size = common_box.number_input("Deck size (n)", min_value=5, max_value=300, value=52, step=1, key="deck_size")
@@ -631,7 +889,7 @@ def build_sidebar():
         metric_guide_box.write(info["plain"])
 
     st.sidebar.markdown("---")
-    run_btn = st.sidebar.button("Run simulation", use_container_width=True, key="run_simulation_button")
+    run_btn = st.sidebar.button("Run simulation", width="stretch", key="run_simulation_button")
 
     return {
         "deck_size": int(deck_size),
@@ -657,6 +915,7 @@ def build_sidebar():
     }
 
 def make_runtime_df(configs_meta, deck_size: int) -> pd.DataFrame:
+    """time cost comparison between methods"""
     rows = []
     for meta in configs_meta:
         rows.append(
@@ -679,6 +938,8 @@ def make_named_results(configs_meta, latest_results):
 
 
 def choose_tracked_step(source_pos_df: pd.DataFrame, chosen_label: str):
+    """ Keeps the tracked-card inspection step stable and friendly to users
+        even when the chosen configuration changes."""
     available_steps = sorted(source_pos_df["steps"].unique()) if not source_pos_df.empty else []
     if not available_steps:
         return None, []
@@ -699,7 +960,7 @@ def choose_tracked_step(source_pos_df: pd.DataFrame, chosen_label: str):
     st.session_state["tracked_step_sidebar"] = chosen_step
     return chosen_step, available_steps
 
-
+# identify which choice the user select and load the corresponding page with different result and data
 def render_results(sidebar_state, target_placeholder=None):
     render_target = target_placeholder.container() if target_placeholder is not None else st.container()
     with render_target:
@@ -752,13 +1013,13 @@ def render_results(sidebar_state, target_placeholder=None):
                         with cols[idx % len(cols)]:
                             st.plotly_chart(
                                 make_single_label_metric_figure(metrics_df, metric_choice, f"{label}: {METRIC_INFO[metric_choice]['label']} over time", label),
-                                use_container_width=True,
+                                width="stretch",
                                 key=f"metric_chart_{metric_choice}_{label}_{render_nonce}",
                             )
                 else:
                     st.plotly_chart(
                         make_metric_figure(metrics_df, metric_choice, f"{METRIC_INFO[metric_choice]['label']} over time"),
-                        use_container_width=True,
+                        width="stretch",
                         key=f"metric_chart_{metric_choice}_{render_nonce}",
                     )
 
@@ -770,18 +1031,18 @@ def render_results(sidebar_state, target_placeholder=None):
                         with cols[idx % len(cols)]:
                             st.plotly_chart(
                                 make_single_label_metric_figure(metrics_df, secondary_metric, f"{label}: {METRIC_INFO[secondary_metric]['label']} over time", label),
-                                use_container_width=True,
+                                width="stretch",
                                 key=f"secondary_chart_{secondary_metric}_{label}_{render_nonce}",
                             )
                 else:
                     st.plotly_chart(
                         make_metric_figure(metrics_df, secondary_metric, f"{METRIC_INFO[secondary_metric]['label']} over time"),
-                        use_container_width=True,
+                        width="stretch",
                         key=f"secondary_chart_{secondary_metric}_{render_nonce}",
                     )
 
                 with st.expander("Show metric table", expanded=False):
-                    st.dataframe(metrics_df.sort_values(["label", "steps"]), use_container_width=True)
+                    st.dataframe(metrics_df.sort_values(["label", "steps"]), width="stretch")
             else:
                 st.info("No metric data available for the selected visible configurations.")
 
@@ -825,7 +1086,7 @@ def render_results(sidebar_state, target_placeholder=None):
                         hist_title = f"Tracked-card position distribution for {tracked_label_choice} at step {chosen_tracked_step}"
                     st.plotly_chart(
                         make_hist_figure(tracked_view_df, chosen_tracked_step, hist_title, sidebar_state["deck_size"]),
-                        use_container_width=True,
+                        width="stretch",
                         key=f"hist_chart_{tracked_label_choice}_{chosen_tracked_step}_{render_nonce}",
                     )
             else:
@@ -853,14 +1114,14 @@ def render_results(sidebar_state, target_placeholder=None):
                     )
                 st.plotly_chart(
                     final_bar_fig,
-                    use_container_width=True,
+                    width="stretch",
                     key=f"bar_chart_final_{advanced_diag_label}_{final_step}_{render_nonce}",
                 )
                 if not pos_df.empty:
                     st.caption("The 3D view shows how the tracked-card probability mass moves across positions over shuffle steps for the visible configurations.")
                     st.plotly_chart(
                         make_3d_figure(pos_df),
-                        use_container_width=True,
+                        width="stretch",
                         key=f"plot3d_chart_{render_nonce}",
                     )
             elif not show_advanced_now:
@@ -885,14 +1146,14 @@ def render_results(sidebar_state, target_placeholder=None):
                 for label, path_df, cycle in perfect_cards:
                     st.plotly_chart(
                         make_perfect_riffle_runs_figure(path_df, label),
-                        use_container_width=True,
+                        width="stretch",
                         key=f"perfect_chart_{label}_{render_nonce}",
                     )
                     if cycle is not None:
                         st.success(f"{label}: this perfect riffle returns to the original deck order after {cycle} shuffles for deck size {sidebar_state['deck_size']}.")
                     else:
                         st.warning(f"{label}: no full return to the original order was found within the current search limit.")
-                    st.dataframe(path_df[["steps", "runs", "inversions", "returned_to_original"]], use_container_width=True)
+                    st.dataframe(path_df[["steps", "runs", "inversions", "returned_to_original"]], width="stretch")
             else:
                 st.info("Enable perfect riffle for at least one visible riffle configuration to see deterministic-cycle diagnostics here.")
 
@@ -900,37 +1161,47 @@ def render_results(sidebar_state, target_placeholder=None):
             st.subheader("Downloads")
             export_metrics, export_pos = combine_results_to_frames(latest_named_results, sidebar_state["deck_size"])
             single_cfg_name = cfg_download_label(stored_configs, "shuffle")
+            config_export_bytes = build_config_export_payload(sidebar_state)
             st.download_button(
                 "Download metric results as CSV",
                 data=export_metrics.to_csv(index=False).encode("utf-8"),
                 file_name=metric_download_name(single_cfg_name, len(stored_configs)),
                 mime="text/csv",
+                key=f"download_metrics_csv_{render_nonce}",
             )
             st.download_button(
                 "Download tracked-card position probabilities as CSV",
                 data=export_pos.to_csv(index=False).encode("utf-8"),
                 file_name=position_download_name(single_cfg_name, len(stored_configs)),
                 mime="text/csv",
+                key=f"download_positions_csv_{render_nonce}",
+            )
+            st.download_button(
+                "Download full configuration as JSON",
+                data=config_export_bytes,
+                file_name=f"{single_cfg_name}_configuration.json" if len(stored_configs) == 1 else "shuffle_configurations.json",
+                mime="application/json",
+                key=f"download_config_json_{render_nonce}",
             )
             if sidebar_state["show_runtime_table"] and not runtime_df.empty:
                 st.subheader("Runtime benchmark")
-                st.dataframe(runtime_df, use_container_width=True)
+                st.dataframe(runtime_df, width="stretch")
             st.markdown(
                 """
-    **Why the previous cheat mode looked broken.** The old cheat wrapper did not actually change the deck for `keep_top` and `keep_bottom`; it only rebuilt the same list slices in the same order. Also, `return_tracked_to_top` used `range(cheat_cards)` instead of the chosen tracked card, so it did not align with the histogram you were watching.
 
-    **What changed.** The cheat code now really enforces the intended behavior after each shuffle:
+    **The cheat code enforces the intended behavior after each shuffle:**
     - `keep_top` restores the original top cards to the top,
     - `keep_bottom` restores the original bottom cards to the bottom,
     - `return_tracked_to_top` moves the selected tracked card back to the first position.
 
     This is why the histogram now changes in a visible way when cheat mode is enabled.
 
-    **About adding points instead of fully redrawing.** With the current Streamlit + Plotly pattern, the simplest reliable approach is still to redraw the figure object. To make that lighter, the app now lets you reduce the redraw frequency with `Redraw every N live batches`, so you can update less often while still seeing the curve grow over time.
+    **About fully redrawing.** With the current Streamlit + Plotly pattern, the simplest reliable approach is still to redraw the figure object compare to add points. To make that lighter, we reduce the redraw frequency with `Redraw every N live batches`, so it can update less often while still seeing the curve grow over time.
                 """
             )
 
 def run_simulation(sidebar_state, results_placeholder=None):
+    """This is the execution of the app."""
     status_placeholder = st.empty()
     latest_results = {}
     configs_meta = sidebar_state["configs"]
@@ -967,14 +1238,14 @@ def run_simulation(sidebar_state, results_placeholder=None):
             cfg = meta["cfg"]
             progress_counter = 0
             for latest_result in run_trials_live(
-                cfg=cfg,
-                steps_list=meta["steps_list"],
-                trials=sidebar_state["trials"],
-                seed=sidebar_state["seed"] + idx,
-                tracked_card=sidebar_state["tracked_card"],
-                deck_size=sidebar_state["deck_size"],
-                batch_size=sidebar_state["batch_size"],
-                max_workers=sidebar_state["max_workers"],
+                    cfg=cfg,
+                    steps_list=meta["steps_list"],
+                    trials=sidebar_state["trials"],
+                    seed=sidebar_state["seed"] + idx,
+                    tracked_card=sidebar_state["tracked_card"],
+                    deck_size=sidebar_state["deck_size"],
+                    batch_size=sidebar_state["batch_size"],
+                    max_workers=sidebar_state["max_workers"],
             ):
                 latest_results[meta["prefix"]] = latest_result
                 progress_counter += 1
