@@ -213,6 +213,122 @@ def make_single_label_metric_figure(df: pd.DataFrame, metric: str, title: str, l
     return make_metric_figure(sub, metric, title)
 
 
+def make_multi_metric_overlay_figure(
+        df: pd.DataFrame,
+        metrics: list[str],
+        title: str,
+        compare_col: str = "label",
+        normalize: bool = False,
+        label_filter: str | None = None,
+) -> go.Figure:
+    fig = go.Figure()
+    if df.empty or not metrics:
+        return fig
+
+    plot_df = df.copy()
+    if label_filter is not None:
+        plot_df = plot_df[plot_df[compare_col] == label_filter].copy()
+    if plot_df.empty:
+        return fig
+
+    for metric in metrics:
+        if metric not in plot_df.columns:
+            continue
+
+        metric_df = plot_df[[compare_col, "steps", metric]].dropna().copy()
+        if metric_df.empty:
+            continue
+
+        if normalize:
+            vals = metric_df[metric].astype(float)
+            lo, hi = vals.min(), vals.max()
+            if pd.notna(lo) and pd.notna(hi) and hi > lo:
+                metric_df["_plot_y"] = (vals - lo) / (hi - lo)
+            else:
+                metric_df["_plot_y"] = vals
+            y_col = "_plot_y"
+        else:
+            y_col = metric
+
+        for label, grp in metric_df.groupby(compare_col):
+            grp = grp.sort_values("steps")
+            fig.add_trace(
+                go.Scatter(
+                    x=grp["steps"],
+                    y=grp[y_col],
+                    mode="lines+markers",
+                    name=f"{label} — {METRIC_INFO[metric]['label']}",
+                    hovertemplate=(
+                        f"Configuration: {label}<br>"
+                        f"Metric: {METRIC_INFO[metric]['label']}<br>"
+                        "Steps: %{x}<br>"
+                        "Value: %{y}<extra></extra>"
+                    ),
+                )
+            )
+
+    fig.update_layout(
+        title=title,
+        xaxis_title="Shuffles / steps",
+        yaxis_title="Normalized value" if normalize else "Metric value",
+        uirevision=f"multi-metric-{'-'.join(metrics)}-norm-{int(normalize)}",
+    )
+    return fig
+
+
+def make_metric_vs_metric_figure(
+        df: pd.DataFrame,
+        x_metric: str,
+        y_metric: str,
+        title: str,
+        compare_col: str = "label",
+        label_filter: str | None = None,
+        show_step_labels: bool = True,
+) -> go.Figure:
+    fig = go.Figure()
+    if df.empty or x_metric not in df.columns or y_metric not in df.columns:
+        return fig
+
+    plot_df = df.copy()
+    if label_filter is not None:
+        plot_df = plot_df[plot_df[compare_col] == label_filter].copy()
+
+    plot_df = plot_df[[compare_col, "steps", x_metric, y_metric]].dropna().copy()
+    if plot_df.empty:
+        return fig
+
+    for label, grp in plot_df.groupby(compare_col):
+        grp = grp.sort_values("steps")
+        fig.add_trace(
+            go.Scatter(
+                x=grp[x_metric],
+                y=grp[y_metric],
+                mode="lines+markers+text" if show_step_labels else "lines+markers",
+                text=grp["steps"].astype(str) if show_step_labels else None,
+                textposition="top center",
+                name=str(label),
+                hovertemplate=(
+                    f"Configuration: {label}<br>"
+                    "Step: %{text}<br>"
+                    f"{METRIC_INFO[x_metric]['label']}: %{{x}}<br>"
+                    f"{METRIC_INFO[y_metric]['label']}: %{{y}}<extra></extra>"
+                ) if show_step_labels else (
+                    f"Configuration: {label}<br>"
+                    f"{METRIC_INFO[x_metric]['label']}: %{{x}}<br>"
+                    f"{METRIC_INFO[y_metric]['label']}: %{{y}}<extra></extra>"
+                ),
+            )
+        )
+
+    fig.update_layout(
+        title=title,
+        xaxis_title=METRIC_INFO[x_metric]["label"],
+        yaxis_title=METRIC_INFO[y_metric]["label"],
+        uirevision=f"metric-vs-metric-{x_metric}-{y_metric}",
+    )
+    return fig
+
+
 def make_hist_figure(pos_df: pd.DataFrame, chosen_step: int, title: str, deck_size: int) -> go.Figure:
     """
     This shows the full probability distribution of the tracked card at one selected step
@@ -510,6 +626,13 @@ def build_config_export_payload(sidebar_state):
             "metric_choice": sidebar_state["metric_choice"],
             "page_mode": sidebar_state["page_mode"],
             "chart_layout_mode": sidebar_state["chart_layout_mode"],
+            "metric_view_mode": sidebar_state.get("metric_view_mode", "Single metric"),
+            "metric_overlay_choices": list(sidebar_state.get("metric_overlay_choices") or []),
+            "normalize_overlay_metrics": bool(sidebar_state.get("normalize_overlay_metrics", True)),
+            "metric_overlay_focus": sidebar_state.get("metric_overlay_focus", "All visible configurations"),
+            "metric_compare_x": sidebar_state.get("metric_compare_x", "ks_pos"),
+            "metric_compare_y": sidebar_state.get("metric_compare_y", "pos_entropy_frac"),
+            "show_metric_compare_step_labels": bool(sidebar_state.get("show_metric_compare_step_labels", True)),
             "show_advanced_graphs": bool(sidebar_state["show_advanced_graphs"]),
             "show_runtime_table": bool(sidebar_state["show_runtime_table"]),
             "tracked_label_choice": sidebar_state.get("tracked_label_choice"),
@@ -547,6 +670,20 @@ def apply_loaded_configuration(payload: dict):
         st.session_state["page_mode"] = display["page_mode"]
     if "chart_layout_mode" in display:
         st.session_state["chart_layout_mode"] = display["chart_layout_mode"]
+    if "metric_view_mode" in display:
+        st.session_state["metric_view_mode"] = display["metric_view_mode"]
+    if "metric_overlay_choices" in display:
+        st.session_state["metric_overlay_choices"] = list(display["metric_overlay_choices"])
+    if "normalize_overlay_metrics" in display:
+        st.session_state["normalize_overlay_metrics"] = bool(display["normalize_overlay_metrics"])
+    if "metric_overlay_focus" in display:
+        st.session_state["metric_overlay_focus"] = display["metric_overlay_focus"]
+    if "metric_compare_x" in display:
+        st.session_state["metric_compare_x"] = display["metric_compare_x"]
+    if "metric_compare_y" in display:
+        st.session_state["metric_compare_y"] = display["metric_compare_y"]
+    if "show_metric_compare_step_labels" in display:
+        st.session_state["show_metric_compare_step_labels"] = bool(display["show_metric_compare_step_labels"])
     if "show_advanced_graphs" in display:
         st.session_state["show_advanced_graphs"] = bool(display["show_advanced_graphs"])
     if "show_runtime_table" in display:
@@ -811,14 +948,104 @@ def build_sidebar():
         visible_labels = visible_options
 
     display_box = st.sidebar.expander("Display options", expanded=True)
+    # metric_options = list(METRIC_INFO.keys())
+    # metric_choice = display_box.selectbox(
+    #     "Main metric",
+    #     metric_options,
+    #     index=0,
+    #     key="metric_choice",
+    #     format_func=lambda key: f"{METRIC_INFO[key]['label']} — {METRIC_INFO[key]['benchmark_label']}",
+    # )
     metric_options = list(METRIC_INFO.keys())
+    current_metric = st.session_state.get("metric_choice", "ks_pos")
+    if current_metric not in metric_options:
+        current_metric = metric_options[0]
+
     metric_choice = display_box.selectbox(
         "Main metric",
         metric_options,
-        index=0,
+        index=metric_options.index(current_metric),
         key="metric_choice",
         format_func=lambda key: f"{METRIC_INFO[key]['label']} — {METRIC_INFO[key]['benchmark_label']}",
     )
+
+    metric_view_mode_options = ["Single metric", "Multi-metric overlay", "Metric vs metric"]
+    previous_metric_view_mode = st.session_state.get("metric_view_mode", "Single metric")
+    if previous_metric_view_mode not in metric_view_mode_options:
+        previous_metric_view_mode = "Single metric"
+
+    metric_view_mode = display_box.radio(
+        "Metric view mode",
+        metric_view_mode_options,
+        index=metric_view_mode_options.index(previous_metric_view_mode),
+        key="metric_view_mode",
+        help="Single metric uses the main metric. Multi-metric overlay shows several metrics against steps. Metric vs metric compares two metrics directly.",
+    )
+
+    default_overlay_metrics = st.session_state.get("metric_overlay_choices", [metric_choice, "pos_entropy_frac"])
+    default_overlay_metrics = [m for m in default_overlay_metrics if m in metric_options]
+    if not default_overlay_metrics:
+        default_overlay_metrics = [metric_choice]
+
+    metric_overlay_choices = display_box.multiselect(
+        "Metrics to overlay",
+        metric_options,
+        default=default_overlay_metrics,
+        key="metric_overlay_choices",
+        format_func=lambda key: METRIC_INFO[key]["label"],
+    )
+
+    normalize_overlay_metrics = display_box.checkbox(
+        "Normalize overlayed metrics",
+        value=bool(st.session_state.get("normalize_overlay_metrics", True)),
+        key="normalize_overlay_metrics",
+        help="Recommended when overlaying metrics with different scales.",
+    )
+
+    overlay_focus_options = ["All visible configurations"] + [meta["display_name"] for meta in configs]
+    previous_overlay_focus = st.session_state.get("metric_overlay_focus", "All visible configurations")
+    if previous_overlay_focus not in overlay_focus_options:
+        previous_overlay_focus = "All visible configurations"
+
+    metric_overlay_focus = display_box.selectbox(
+        "Overlay focus",
+        overlay_focus_options,
+        index=overlay_focus_options.index(previous_overlay_focus),
+        key="metric_overlay_focus",
+        help="Show multi-metric overlay for all visible configurations or focus on one configuration.",
+    )
+
+    previous_x_metric = st.session_state.get("metric_compare_x", "ks_pos")
+    if previous_x_metric not in metric_options:
+        previous_x_metric = metric_options[0]
+
+    metric_compare_x = display_box.selectbox(
+        "Metric comparison X-axis",
+        metric_options,
+        index=metric_options.index(previous_x_metric),
+        key="metric_compare_x",
+        format_func=lambda key: METRIC_INFO[key]["label"],
+    )
+
+    compare_y_options = [m for m in metric_options if m != metric_compare_x]
+    previous_y_metric = st.session_state.get("metric_compare_y", "pos_entropy_frac")
+    if previous_y_metric not in compare_y_options:
+        previous_y_metric = compare_y_options[0]
+
+    metric_compare_y = display_box.selectbox(
+        "Metric comparison Y-axis",
+        compare_y_options,
+        index=compare_y_options.index(previous_y_metric),
+        key="metric_compare_y",
+        format_func=lambda key: METRIC_INFO[key]["label"],
+    )
+
+    show_metric_compare_step_labels = display_box.checkbox(
+        "Show step labels in metric-vs-metric plot",
+        value=bool(st.session_state.get("show_metric_compare_step_labels", True)),
+        key="show_metric_compare_step_labels",
+    )
+
     page_mode = display_box.radio(
         "Results page",
         PAGES,
@@ -903,6 +1130,13 @@ def build_sidebar():
         "compare_enabled": bool(compare_enabled),
         "metric_choice": metric_choice,
         "page_mode": page_mode,
+        "metric_view_mode": metric_view_mode,
+        "metric_overlay_choices": list(metric_overlay_choices or []),
+        "normalize_overlay_metrics": bool(normalize_overlay_metrics),
+        "metric_overlay_focus": metric_overlay_focus,
+        "metric_compare_x": metric_compare_x,
+        "metric_compare_y": metric_compare_y,
+        "show_metric_compare_step_labels": bool(show_metric_compare_step_labels),
         "chart_layout_mode": chart_layout_mode,
         "show_advanced_graphs": bool(show_advanced_graphs),
         "show_runtime_table": bool(show_runtime_table),
@@ -972,7 +1206,11 @@ def render_results(sidebar_state, target_placeholder=None):
 
         st.info("Showing the most recent completed simulation. Change display options freely without rerunning.")
 
-        visible_labels = sidebar_state["visible_labels"] or [meta["display_name"] for meta in stored_configs]
+        # visible_labels = sidebar_state["visible_labels"] or [meta["display_name"] for meta in stored_configs]
+        visible_labels = st.session_state.get(
+            "visible_labels",
+            sidebar_state["visible_labels"] or [meta["display_name"] for meta in stored_configs],
+            )
         latest_named_results = make_named_results(stored_configs, stored_results)
         filtered_named_results = {k: v for k, v in latest_named_results.items() if k in visible_labels}
 
@@ -995,52 +1233,141 @@ def render_results(sidebar_state, target_placeholder=None):
         else:
             chosen_step = None
 
-        page_mode = sidebar_state["page_mode"]
-        metric_choice = sidebar_state["metric_choice"]
-        chart_layout_mode = sidebar_state["chart_layout_mode"]
+        # page_mode = sidebar_state["page_mode"]
+        # metric_choice = sidebar_state["metric_choice"]
+        # chart_layout_mode = sidebar_state["chart_layout_mode"]
+        page_mode = st.session_state.get("page_mode", sidebar_state["page_mode"])
+        metric_choice = st.session_state.get("metric_choice", sidebar_state["metric_choice"])
+        chart_layout_mode = st.session_state.get("chart_layout_mode", sidebar_state["chart_layout_mode"])
+        metric_view_mode = st.session_state.get(
+            "metric_view_mode",
+            sidebar_state.get("metric_view_mode", "Single metric"),
+        )
+        metric_overlay_choices = st.session_state.get(
+            "metric_overlay_choices",
+            sidebar_state.get("metric_overlay_choices", [metric_choice]),
+        )
+        normalize_overlay_metrics = bool(
+            st.session_state.get(
+                "normalize_overlay_metrics",
+                sidebar_state.get("normalize_overlay_metrics", True),
+            )
+        )
+        metric_overlay_focus = st.session_state.get(
+            "metric_overlay_focus",
+            sidebar_state.get("metric_overlay_focus", "All visible configurations"),
+        )
+        metric_compare_x = st.session_state.get(
+            "metric_compare_x",
+            sidebar_state.get("metric_compare_x", "ks_pos"),
+        )
+        metric_compare_y = st.session_state.get(
+            "metric_compare_y",
+            sidebar_state.get("metric_compare_y", "pos_entropy_frac"),
+        )
+        show_metric_compare_step_labels = bool(
+            st.session_state.get(
+                "show_metric_compare_step_labels",
+                sidebar_state.get("show_metric_compare_step_labels", True),
+            )
+        )
         render_nonce = next_render_nonce()
 
         if page_mode == "Overview":
             st.subheader("Overview")
             if not metrics_df.empty:
-                st.caption(
-                    f"{METRIC_INFO[metric_choice]['plain']} {METRIC_INFO[metric_choice]['direction']} {METRIC_INFO[metric_choice]['benchmark_label']}"
-                )
                 labels = list(metrics_df["label"].dropna().unique())
-                if chart_layout_mode == "Side by side" and len(labels) > 1:
-                    cols = st.columns(min(len(labels), 3))
-                    for idx, label in enumerate(labels):
-                        with cols[idx % len(cols)]:
-                            st.plotly_chart(
-                                make_single_label_metric_figure(metrics_df, metric_choice, f"{label}: {METRIC_INFO[metric_choice]['label']} over time", label),
-                                width="stretch",
-                                key=f"metric_chart_{metric_choice}_{label}_{render_nonce}",
-                            )
-                else:
-                    st.plotly_chart(
-                        make_metric_figure(metrics_df, metric_choice, f"{METRIC_INFO[metric_choice]['label']} over time"),
-                        width="stretch",
-                        key=f"metric_chart_{metric_choice}_{render_nonce}",
+                if metric_view_mode == "Single metric":
+                    st.caption(
+                        f"{METRIC_INFO[metric_choice]['plain']} {METRIC_INFO[metric_choice]['direction']} {METRIC_INFO[metric_choice]['benchmark_label']}"
                     )
+                    if chart_layout_mode == "Side by side" and len(labels) > 1:
+                        cols = st.columns(min(len(labels), 3))
+                        for idx, label in enumerate(labels):
+                            with cols[idx % len(cols)]:
+                                st.plotly_chart(
+                                    make_single_label_metric_figure(metrics_df, metric_choice, f"{label}: {METRIC_INFO[metric_choice]['label']} over time", label),
+                                    width="stretch",
+                                    key=f"metric_chart_{metric_choice}_{label}_{render_nonce}",
+                                )
+                    else:
+                        st.plotly_chart(
+                            make_metric_figure(metrics_df, metric_choice, f"{METRIC_INFO[metric_choice]['label']} over time"),
+                            width="stretch",
+                            key=f"metric_chart_{metric_choice}_{render_nonce}",
+                        )
 
-                secondary_metric = "runs_mean" if metric_choice != "runs_mean" else "inv_mean"
-                st.caption(f"Secondary view: {METRIC_INFO[secondary_metric]['plain']} {METRIC_INFO[secondary_metric]['direction']}")
-                if chart_layout_mode == "Side by side" and len(labels) > 1:
-                    cols = st.columns(min(len(labels), 3))
-                    for idx, label in enumerate(labels):
-                        with cols[idx % len(cols)]:
+                    secondary_metric = "runs_mean" if metric_choice != "runs_mean" else "inv_mean"
+                    st.caption(f"Secondary view: {METRIC_INFO[secondary_metric]['plain']} {METRIC_INFO[secondary_metric]['direction']}")
+                    if chart_layout_mode == "Side by side" and len(labels) > 1:
+                        cols = st.columns(min(len(labels), 3))
+                        for idx, label in enumerate(labels):
+                            with cols[idx % len(cols)]:
+                                st.plotly_chart(
+                                    make_single_label_metric_figure(metrics_df, secondary_metric, f"{label}: {METRIC_INFO[secondary_metric]['label']} over time", label),
+                                    width="stretch",
+                                    key=f"secondary_chart_{secondary_metric}_{label}_{render_nonce}",
+                                )
+                    else:
+                        st.plotly_chart(
+                            make_metric_figure(metrics_df, secondary_metric, f"{METRIC_INFO[secondary_metric]['label']} over time"),
+                            width="stretch",
+                            key=f"secondary_chart_{secondary_metric}_{render_nonce}",
+                        )
+                elif metric_view_mode == "Multi-metric overlay":
+                    valid_metrics = [m for m in metric_overlay_choices if m in METRIC_INFO]
+                    if not valid_metrics:
+                        st.warning("Choose at least one metric to overlay.")
+                    else:
+                        if metric_overlay_focus == "All visible configurations":
+                            st.caption("Overlaying multiple metrics across the currently visible configurations.")
                             st.plotly_chart(
-                                make_single_label_metric_figure(metrics_df, secondary_metric, f"{label}: {METRIC_INFO[secondary_metric]['label']} over time", label),
+                                make_multi_metric_overlay_figure(
+                                    metrics_df,
+                                    valid_metrics,
+                                    title="Multi-metric overlay over time",
+                                    normalize=normalize_overlay_metrics,
+                                ),
                                 width="stretch",
-                                key=f"secondary_chart_{secondary_metric}_{label}_{render_nonce}",
+                                key=f"multi_metric_overlay_all_{render_nonce}",
                             )
+                        else:
+                            st.caption(f"Overlaying multiple metrics for configuration: {metric_overlay_focus}")
+                            st.plotly_chart(
+                                make_multi_metric_overlay_figure(
+                                    metrics_df,
+                                    valid_metrics,
+                                    title=f"{metric_overlay_focus}: multi-metric overlay over time",
+                                    normalize=normalize_overlay_metrics,
+                                    label_filter=metric_overlay_focus,
+                                ),
+                                width="stretch",
+                                key=f"multi_metric_overlay_{metric_overlay_focus}_{render_nonce}",
+                            )
+                elif metric_view_mode == "Metric vs metric":
+                    if metric_compare_x == metric_compare_y:
+                        st.warning("Choose two different metrics for the comparison plot.")
+                    else:
+                        st.caption(
+                            f"Comparing {METRIC_INFO[metric_compare_x]['label']} "
+                            f"against {METRIC_INFO[metric_compare_y]['label']}."
+                        )
+                        st.plotly_chart(
+                            make_metric_vs_metric_figure(
+                                metrics_df,
+                                metric_compare_x,
+                                metric_compare_y,
+                                title=(
+                                    f"{METRIC_INFO[metric_compare_x]['label']} vs "
+                                    f"{METRIC_INFO[metric_compare_y]['label']}"
+                                ),
+                                show_step_labels=show_metric_compare_step_labels,
+                            ),
+                            width="stretch",
+                            key=f"metric_vs_metric_{metric_compare_x}_{metric_compare_y}_{render_nonce}",
+                        )
                 else:
-                    st.plotly_chart(
-                        make_metric_figure(metrics_df, secondary_metric, f"{METRIC_INFO[secondary_metric]['label']} over time"),
-                        width="stretch",
-                        key=f"secondary_chart_{secondary_metric}_{render_nonce}",
-                    )
-
+                    st.warning(f"Unknown metric view mode: {metric_view_mode}")
                 with st.expander("Show metric table", expanded=False):
                     st.dataframe(metrics_df.sort_values(["label", "steps"]), width="stretch")
             else:
@@ -1258,7 +1585,6 @@ def run_simulation(sidebar_state, results_placeholder=None):
                     st.session_state["latest_results"] = latest_results.copy()
                     st.session_state["last_configs_meta"] = configs_meta
                     st.session_state["runtime_df"] = pd.DataFrame()
-                    render_results(sidebar_state, results_placeholder)
 
     runtime_df = make_runtime_df(configs_meta, sidebar_state["deck_size"])
     st.session_state["latest_results"] = latest_results
@@ -1266,10 +1592,17 @@ def run_simulation(sidebar_state, results_placeholder=None):
     st.session_state["runtime_df"] = runtime_df
 
 
+# sidebar_state = build_sidebar()
+# results_placeholder = st.empty()
+#
+# if sidebar_state["run_btn"]:
+#     run_simulation(sidebar_state, results_placeholder)
+#
+# render_results(sidebar_state, results_placeholder)
 sidebar_state = build_sidebar()
-results_placeholder = st.empty()
 
 if sidebar_state["run_btn"]:
+    results_placeholder = st.empty()
     run_simulation(sidebar_state, results_placeholder)
 
-render_results(sidebar_state, results_placeholder)
+render_results(sidebar_state)
