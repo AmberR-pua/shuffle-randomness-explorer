@@ -356,6 +356,27 @@ def ks_distance_to_uniform(samples: List[int], n: int) -> float:
         max_diff = max(max_diff, abs(cum_emp - cum_uni))
     return max_diff
 
+def tv_distance_to_uniform(samples: List[int], n: int) -> float:
+    """
+    Compute total variation distance between the empirical distribution
+    of tracked-card positions and the uniform distribution.
+
+    TV(P, U) = 0.5 * sum_x |P(x) - 1/n|
+
+    Interpretation:
+        0.0  -> perfectly uniform
+        larger value -> more total probability mass is misplaced
+    """
+    if n <= 0:
+        return 0.0
+    if not samples:
+        return 0.0
+
+    counts = Counter(samples)
+    total = len(samples)
+    uniform_p = 1.0 / n
+    return 0.5 * sum(abs(counts.get(x, 0) / total - uniform_p) for x in range(n))
+
 
 
 def shannon_entropy_bits_from_counts(counts: Counter, total: int) -> float:
@@ -496,6 +517,8 @@ def summarize_step(
         "trials_done": trials_done,
         "ks_pos": ks_distance_to_uniform(pos_samples, n=deck_size),
         "ks_pos_benchmark": 0.0,
+        "tv_pos": tv_distance_to_uniform(pos_samples, n=deck_size),
+        "tv_pos_benchmark": 0.0,
         "pos_mean": pos_mean,
         "pos_mean_benchmark": (deck_size - 1) / 2,
         "pos_sd": pos_sd,

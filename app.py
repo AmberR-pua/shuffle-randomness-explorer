@@ -39,6 +39,12 @@ METRIC_INFO = {
         "direction": "Lower is better.",
         "plain": "This measures how far the tracked card's position distribution is from a uniform distribution.",
     },
+    "tv_pos": {
+        "label": "Total variation distance of tracked-card position",
+        "benchmark_label": "Expected benchmark: 0.0 (perfectly uniform tracked-card positions)",
+        "direction": "Lower is better.",
+        "plain": "This measures the total amount of probability mass that is misplaced across all positions compared with a uniform distribution.",
+    },
     "pos_entropy_frac": {
         "label": "Position entropy fraction",
         "benchmark_label": "Expected benchmark: 1.0 (maximum spread across all positions)",
@@ -68,6 +74,7 @@ METRIC_INFO = {
 
 BENCHMARK_COLUMN_MAP = {
     "ks_pos": "ks_pos_benchmark",
+    "tv_pos": "tv_pos_benchmark",
     "pos_entropy_frac": "pos_entropy_frac_benchmark",
     "inv_mean": "inv_uniform_mean",
     "runs_mean": "runs_mean_benchmark",
@@ -90,10 +97,14 @@ with st.expander("What do we mean by randomness here?", expanded=True):
 that card should become almost equally likely to appear in any position.
 
 **Metrics used in this site.**
-- **KS distance of tracked-card position:**   
-Measures how far the tracked card’s position distribution is from perfectly uniform.  
+- **Kolmogorov–Smirnov(KS) distance of tracked-card position:**   
+Measures how far the largest tracked card’s position distribution is from perfectly uniform.  
   It looks for the *largest imbalance* — for example, if the card appears too often in certain positions.   
   smaller is better; `0` means a perfectly uniform tracked-card distribution.
+- **Total Variation(TV) distance of tracked-card position:**     
+Measures how far the total global tracked card’s position distribution is from perfectly uniform.  
+  It captures the overall difference across all positions — summing up how much probability mass is misplaced.  
+    smaller is better; `0` means a perfectly uniform tracked-card distribution.
 - **Position entropy fraction:**   
 Measures how evenly the tracked card is spread across all positions.  
    Instead of focusing on worst cases, this looks at the *overall spread*.  
@@ -110,6 +121,10 @@ A random permutation has expected value `(n+1)/2`.
 - **Mean tracked-card position:**   
 Tracks where the chosen card tends to end up on average.   
 for a fair shuffle, it should not favor the top or bottom, the expected average position is `(n-1)/2`.
+- **Notice about KS distance and Tv distance:**  
+KS distance and Total Variation distance capture different aspects of randomness:  
+KS distance focuses on the largest local imbalance by measuring the maximum deviation in cumulative distributions, while Total Variation distance measures global discrepancy by summing differences across all positions.
+A distribution can have a small KS distance but still differ significantly overall, or have a small TV distance while containing a noticeable local spike.
 - **Notice about inversion count and Increasing sequences:**   
 Rising sequences and inversion count are different because they measure different scales of randomness:   
 inversion count captures global disorder across all card pairs, while rising sequences detect local structure by identifying ordered chunks. A shuffle can appear random in one metric but not the other.
