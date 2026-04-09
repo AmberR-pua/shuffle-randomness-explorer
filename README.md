@@ -1,6 +1,12 @@
 # Shuffle Randomness Explorer
+
+
 ## Link for Presentation Slides
+
+
 https://www.canva.com/design/DAHETaTYKc4/rZOgTrrLFHqO9d05iXxYCQ/edit?utm_content=DAHETaTYKc4&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
+
 ---
 ## 📚 Table of Contents
 
