@@ -1480,6 +1480,7 @@ def render_results(sidebar_state, target_placeholder=None):
                         st.success(f"{label}: this perfect riffle returns to the original deck order after {cycle} shuffles for deck size {sidebar_state['deck_size']}.")
                     else:
                         st.warning(f"{label}: no full return to the original order was found within the current search limit.")
+                    st.info("here returned_to_original shows at which step the deck order is back to its original order")
                     st.dataframe(path_df[["steps", "runs", "inversions", "returned_to_original"]], width="stretch")
             else:
                 st.info("Enable perfect riffle for at least one visible riffle configuration to see deterministic-cycle diagnostics here.")
