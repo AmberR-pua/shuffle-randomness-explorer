@@ -1477,7 +1477,7 @@ def render_results(sidebar_state, target_placeholder=None):
                         key=f"perfect_chart_{label}_{render_nonce}",
                     )
                     if cycle is not None:
-                        st.success(f"{label}: this perfect riffle returns to the original deck order after {cycle} shuffles for deck size {sidebar_state['deck_size']}.")
+                        st.success(f"Configuration {label}: this perfect riffle returns to the original deck order after multiple of {cycle} shuffles for deck size {sidebar_state['deck_size']}.")
                     else:
                         st.warning(f"{label}: no full return to the original order was found within the current search limit.")
                     st.info("here returned_to_original shows at which step the deck order is back to its original order")
