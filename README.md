@@ -1,181 +1,287 @@
 # Shuffle Randomness Explorer
 
-This is a small project I built to study how different card shuffling methods actually mix a deck.
+## 📚 Table of Contents
 
-I wanted to explore a simple but interesting question:
-
-> When can we say a deck of cards is “random enough” under shuffling?
-
-Instead of just shuffling cards and assuming it works, this project simulates different shuffle methods, measures how randomness evolves, and visualizes the results in an interactive way.
-
----
-
-## What this project does
-
-This is a Streamlit app where you can:
-
-* simulate different shuffle methods (riffle, overhand, pile)
-* track how a specific card moves over time
-* compare multiple shuffle configurations side by side
-* see how randomness improves as the number of shuffles increases
-* export results for further analysis
-
-The goal is not just to visualize shuffling, but to **understand randomness from different perspectives**.
+* [Overview](#overview)
+* [Core Features](#core-features)
+* [Demo](#demo)
+* [Shuffle Methods](#shuffle-methods)
+* [Metrics](#metrics)
+* [Latest Improvement](#latest-improvement)
+* [Tech Stack](#tech-stack)
+* [How to Run](#how-to-run)
+* [Configuration JSON Format](#configuration-json-format)
+* [Project Structure](#project-structure)
+* [Implementation Details](#implementation-details)
+* [Why I build this](#why-i-built-this)
+* [Developer Notes](#developer-notes)
+* [Limitations](#limitations)
+* [Future Improvements](#future-improvements)
 
 ---
 
-## Shuffle methods implemented
+## Overview
 
-* **Riffle shuffle (GSR-style)**
-  A probabilistic model where the deck is split and interleaved.
+This project explores a simple but deep question:
 
-* **Overhand shuffle**
-  The deck is cut into random chunks and reversed.
+> **When is a deck of cards "random enough"?**
+
+Instead of assuming randomness, this app:
+
+* simulates different shuffle processes
+* tracks randomness over time
+* visualizes how distributions evolve
+
+Built as an interactive **Streamlit app**, it allows experimentation with shuffle models and parameters.
+
+This project combines simulation, probability theory, and interactive visualization to provide an intuitive understanding of randomness in card shuffling.
+
+---
+
+## Core Features
+
+* Interactive UI (Streamlit)
+* Compare multiple shuffle configurations
+* Real-time metric visualization
+* Track a specific card across positions
+* Histogram + 3D visualization
+* Export results (CSV)
+* Save / load configurations (JSON)
+* Cheat mode (simulate biased shuffles)
+* Perfect riffle analysis (cycle detection)
+
+---
+
+## Demo
+
+### Main Interface
+![App Screenshot](images/demo.png)
+
+---
+
+## Shuffle Methods
+
+* **Riffle shuffle (GSR model)**
+  Probabilistic split + interleave
+
+* **Overhand shuffle (Pemantle)**
+  Random chunking + reversal
 
 * **Pile shuffle**
-  Cards are distributed into piles and then collected.
+  Distribution into piles + collection
 
 * **Perfect riffle (deterministic)**
-  A special case where the shuffle is not random at all.
-  This is useful to show that some “shuffles” can still have strong structure.
+  No randomness → reveals hidden structure and cycles
 
 ---
 
-## Metrics used
+## Metrics
 
-There is no single way to measure randomness, so I used multiple metrics:
+This project uses multiple perspectives to measure randomness:
 
-### 1. KS distance (tracked card)
+(All figures are generated using the default riffle shuffle.)
 
-Measures how far the tracked card’s position distribution is from uniform.
+### 1. KS Distance (Tracked Card)
 
+* Measures deviation from uniform distribution
 * 0 → perfectly uniform
-* higher → more bias
+* **Lower is better (less biased)**
 
----
+![KS Distance](images/ks_distance.png)
 
-### 2. Position entropy
+### 2. Position Entropy
 
-Measures how evenly the tracked card spreads across positions.
+* Measures spread of probability
+* Lower → concentrated in certain positions
+* **Closer to 1 is better**
 
-* closer to 1 → better spread
-* lower → concentrated in certain positions
+![Position Entropy](images/pos_entropy.png)
 
----
+### 3. Inversion Count
 
-### 3. Inversion count
-
-Counts how many pairs of cards are out of order.
-
+* Global disorder measure
 * 0 → completely ordered
-* ~n(n−1)/4 → expected for random deck
+* Benchmark: `n(n-1)/4` (expected for random deck)
 
----
+![Inversion Count](images/mean_inversion_count.png)
 
-### 4. Rising runs
+### 4. Rising Runs
 
-Counts how many increasing sequences exist in the deck.
-
+* Measures local structure
 * fewer runs → more structure remains
-* around (n+1)/2 → expected for random deck
+* Benchmark: `(n+1)/2` (expected for random deck)
+
+![Rising Runs](images/increasing_seq.png)
+ 
+### 5. Mean Position
+
+* Checks positional bias
+* Benchmark: middle of deck (expected for random deck)
+
+![Mean Track-card Position](images/mean_track_pos.png)
 
 ---
 
-### 5. Mean position of tracked card
+## Latest Improvement
 
-Checks whether the tracked card tends to stay near top or bottom.
+Based on the latest version of the app, the following improvements have been added:
 
-* expected value → middle of the deck
+### 🔹 Multi-page UI
 
----
+* Overview
+* Tracked Card
+* Advanced Diagnostics
+* Perfect Riffle
+* Downloads
 
-## Key idea
+### 🔹 Advanced Diagnostics
 
-Different metrics measure different things.
+* Top/Bottom probability per card
+* Extreme probability visualization
+* Metric vs metric comparison plots
 
-A shuffle can:
+### 🔹 3D Visualization
 
-* look random for one card
-* but still keep structure in the whole deck
+* Step × Position × Probability
+* Shows how probability mass spreads over time
 
-This project tries to show that clearly.
+### 🔹 Multi-metric Overlay
 
----
+* Compare different metrics on one chart
+* Optional normalization
 
-## Features
+### 🔹 Perfect Riffle Analysis
 
-* interactive UI built with Streamlit
-* compare multiple shuffle settings at once
-* real-time metric plots over shuffle steps
-* histogram of tracked card position
-* 3D visualization (step × position × probability)
-* “cheat mode” to simulate biased shuffling
-* perfect riffle analysis (can return to original order)
-* export results as CSV
-* save/load experiment configs (JSON)
+* Detect return-to-original cycles
+* Deterministic deck path tracking
 
----
+### 🔹 Parallel Simulation
 
-## Tech stack
+* Uses `ThreadPoolExecutor` for faster Monte Carlo runs
+* enables parallel execution of simulation tasks
 
-* **Python**
-* **Streamlit** (UI)
-* **Plotly** (visualization)
-* **Pandas** (data processing)
+### 🔹 Cached Computation
 
----
-
-## Implementation details
-
-This project is based on **Monte Carlo simulation**.
-
-Some techniques used:
-
-* repeated random trials to estimate distributions
-* `@st.cache_data` to avoid recomputation
-* `ThreadPoolExecutor` for parallel simulation
-* `dataclass` for configuration management
-* converting results into DataFrames for plotting
-* modular design (simulation vs UI separation)
+* `@st.cache_data` avoids recomputation
 
 ---
 
-## How to run this project
+## Tech Stack
 
-### 1. Clone the repo
+* Python
+* Streamlit
+* Plotly
+* Pandas
+
+---
+
+## How to Run
 
 ```bash
 git clone https://github.com/AmberR-pua/shuffle-randomness-explorer.git
 cd shuffle-randomness-explorer
-```
 
-### 2. Install dependencies
-
-```bash
 pip install -r requirements.txt
-```
-
-### 3. Run the app
-
-```bash
 streamlit run app.py
 ```
 
-Then open the local URL shown in the terminal.
+---
+
+## Configuration JSON Format
+
+This project supports saving and loading experiment configurations using JSON files.
+
+#### Example Configuration (Simplified)
+
+```json
+{
+  "method": "riffle",
+  "steps_list": [1, 2, 3, 5, 10],
+  "deck_size": 52,
+  "tracked_card": 0,
+  "trials": 600,
+
+  "shuffle_params": {
+    "riffle_cut_p": 0.5,
+    "p_overhand": 0.5,
+    "piles_k": 7,
+    "pile_random_pickup": true,
+    "cheat_mode": "none",
+    "cheat_cards": 0,
+    "perfect_riffle": false,
+    "perfect_riffle_start": "left"
+  }
+}
+```
+
+#### Full Configuration
+
+A full configuration file (including UI state and multiple configurations) looks like this:
+
+```json
+{
+  "common_settings": { ... },
+  "display_settings": { ... },
+  "shuffle_configurations": [ ... ]
+}
+```
+
+See example file:
+`riffle(cut_p=0.50)_configuration.json`
 
 ---
 
-## Project structure
+#### Structure
+
+#### common_settings
+
+* deck_size, tracked_card, trials, seed
+* parallel settings (max_workers, batch_size)
+
+#### display_settings
+
+* current page and UI mode
+* metric selection and visualization options
+
+
+#### shuffle_configurations
+
+
+* `method`: riffle / overhand / pile
+* `steps_list`: number of shuffles
+* `shuffle_params`: parameters for each method
+
+#### Notes
+
+* JSON files allow saving and restoring experiments
+* Supports multiple configurations for comparison
+* Enables reproducible simulation results
+
+
+
+---
+
+## Project Structure
 
 ```
 .
 ├── app.py                  # Streamlit UI
 ├── shuffle_main.py         # simulation + metrics
-├── requirements.txt    
+├── requirements.txt
 ├── shuffle_run_local.txt   # generated local results
 ├── README.md
-└── csv_file/               # generated results
+├── csv_file/               # generated outputs
 ```
+
+---
+
+## Implementation Details
+
+* Monte Carlo simulation
+* Parallel execution for trials
+* Dataclass-based config system
+* Modular design (UI vs simulation)
+* Statistical estimation of distributions
 
 ---
 
@@ -193,33 +299,65 @@ It also helped me practice:
 * structuring a small project
 * thinking about how to measure “randomness”
 * separation between simulation logic and UI
-* build UI from users' perspectives
+* designing UI from a user perspective
 
+---
+
+## Developer Notes
+
+### ➕ How to Add a New Shuffle Technique
+
+To extend this project:
+
+1. Implement a new shuffle function in `shuffle_main.py`
+
+```python
+def my_shuffle(deck, rng):
+    # your logic
+    pass
+```
+
+2. Register it in `build_shuffle_config`
+
+3. Add UI controls in `app.py`
+
+4. (Optional) Add scheduling logic:
+
+```python
+schedule_my_shuffle(...)
+```
+
+5. Add name + parameters for display
+
+---
+
+### 💡 Tips
+
+* Keep shuffle **in-place** (mutate deck)
+* Use `rng` for reproducibility
+* Ensure compatibility with metrics pipeline
 
 ---
 
 ## Limitations
 
-* simulation can be slow for very large trials
-* inversion count is O(n²), so not optimized for huge decks
-* randomness depends on pseudo-random generator
+* Simulation can be slow for large trials
+* Inversion count is O(n²)
+* Depends on pseudo-random generator
 
 ---
 
-## Possible improvements
+## Future Improvements
 
-* faster algorithms for large decks
-* more shuffle models
-* better statistical confidence intervals
-* deploy the app online
-
----
-
-## Final note
-
-This is a project about combining mathematical knowledge with coding skill, 
-involving multiple aspects such as **probability, simulation, and visualization**.
+* Faster algorithms
+* More shuffle models
+* Better statistical confidence intervals
+* Deploy online
 
 ---
 
-Thanks for reading!
+## Final Note
+
+This is a project about combining mathematical knowledge with coding skill, involving multiple aspects such as probability, simulation, and visualization to explore randomness in an intuitive and interactive way.
+
+---

@@ -1,0 +1,69 @@
+{
+  "app": "Card Shuffling Randomness Explorer",
+  "version": 1,
+  "common_settings": {
+    "deck_size": 52,
+    "tracked_card": 0,
+    "trials": 600,
+    "seed": 2026,
+    "batch_size": 100,
+    "max_workers": 2,
+    "refresh_every": 2,
+    "use_cached_final": false,
+    "compare_enabled": false,
+    "config_count": 1
+  },
+  "display_settings": {
+    "metric_choice": "pos_mean",
+    "page_mode": "Downloads",
+    "chart_layout_mode": "Overlay",
+    "metric_view_mode": "Single metric",
+    "metric_overlay_choices": [],
+    "normalize_overlay_metrics": true,
+    "metric_overlay_focus": "All visible configurations",
+    "metric_compare_x": "ks_pos",
+    "metric_compare_y": "pos_entropy_frac",
+    "show_metric_compare_step_labels": true,
+    "show_advanced_graphs": true,
+    "show_runtime_table": true,
+    "tracked_label_choice": "All visible configurations",
+    "advanced_diag_label_choice": "A",
+    "visible_labels": [
+      "A"
+    ]
+  },
+  "shuffle_configurations": [
+    {
+      "prefix": "A",
+      "display_name": "A",
+      "method": "riffle",
+      "schedule_settings": {
+        "max_shuffles": 12
+      },
+      "steps_list": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "shuffle_params": {
+        "riffle_cut_p": 0.5,
+        "p_overhand": 0.5,
+        "piles_k": 7,
+        "pile_random_pickup": true,
+        "cheat_mode": "none",
+        "cheat_cards": 2,
+        "perfect_riffle": false,
+        "perfect_riffle_start": "left"
+      }
+    }
+  ]
+}
